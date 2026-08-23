@@ -52,23 +52,24 @@ body{
   display:flex;flex-direction:column;gap:1px;
   border-left-width:5px;
 }
-.cartao.vai{border-left-color:var(--verde)}
-.cartao.pessoas{border-left-color:var(--azul)}
-.cartao.aguardando{border-left-color:var(--ambar)}
+.cartao.confirmou{border-left-color:var(--verde)}
+.cartao.falou{border-left-color:var(--azul)}
+.cartao.pessoas{border-left-color:var(--madeira)}
 .cartao.nao{border-left-color:var(--vermelho)}
 .cartao b{
   font-family:"Grandstander",cursive;font-weight:900;font-size:1.9rem;line-height:1;
   font-variant-numeric:tabular-nums;
 }
-.cartao.vai b{color:var(--verde)} .cartao.pessoas b{color:var(--azul)}
-.cartao.aguardando b{color:var(--ambar)} .cartao.nao b{color:var(--vermelho)}
+.cartao.confirmou b{color:var(--verde)} .cartao.falou b{color:var(--azul)}
+.cartao.pessoas b{color:var(--madeira)} .cartao.nao b{color:var(--vermelho)}
 .cartao span{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-suave)}
 
 /* barrinha */
 .barra{display:flex;height:11px;border-radius:99px;overflow:hidden;background:var(--cinza-claro);border:1.5px solid var(--linha)}
 .barra i{display:block;transition:width .35s ease}
-.barra .b-vai{background:var(--verde)} .barra .b-ag{background:#e5b955}
-.barra .b-nao{background:var(--vermelho)} .barra .b-sem{background:#c9bba6}
+.barra .b-confirmou{background:var(--verde)} .barra .b-falou{background:var(--azul)}
+.barra .b-aguardando{background:#e5b955} .barra .b-sem{background:#c9bba6}
+.barra .b-nao{background:var(--vermelho)}
 
 /* ferramentas */
 .ferramentas{display:flex;flex-wrap:wrap;gap:8px}
@@ -96,23 +97,33 @@ body{
   background:var(--papel);border:1.5px solid var(--linha);border-radius:14px;
   box-shadow:var(--sombra);overflow:hidden;border-left-width:5px;
 }
-.pessoa[data-s=vai]{border-left-color:var(--verde)}
+.pessoa[data-s=confirmou]{border-left-color:var(--verde)}
+.pessoa[data-s=falou]{border-left-color:var(--azul)}
 .pessoa[data-s=aguardando]{border-left-color:#e5b955}
-.pessoa[data-s=nao]{border-left-color:var(--vermelho)}
 .pessoa[data-s=sem]{border-left-color:#c9bba6}
-.cabeca{
-  width:100%;border:0;background:none;cursor:pointer;font-family:inherit;color:inherit;
+.pessoa[data-s=nao]{border-left-color:var(--vermelho)}
+.cabeca{display:flex;align-items:stretch}
+.cabeca:hover{background:#fff}
+.abrir-linha{
+  flex:1;min-width:0;border:0;background:none;cursor:pointer;font-family:inherit;color:inherit;
   display:flex;align-items:center;gap:11px;padding:12px 13px;text-align:left;
 }
-.cabeca:hover{background:#fff}
-.cabeca .quem{flex:1;min-width:0}
+.tick{
+  flex:none;border:0;border-left:1.5px dashed var(--linha);cursor:pointer;
+  background:var(--verde-claro);color:var(--verde);padding:0 13px;
+}
+.tick:hover{background:var(--verde);color:#fff}
+.tick svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.cabeca .quem{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.cabeca .meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .cabeca .nm{display:block;font-weight:800;font-size:1rem;line-height:1.25;overflow-wrap:anywhere}
 .cabeca .ob{display:block;font-size:.8rem;line-height:1.3;color:var(--tinta-suave);overflow-wrap:anywhere}
 .chip{
   flex:none;font-size:.7rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
   padding:5px 10px;border-radius:99px;white-space:nowrap;
 }
-.chip[data-s=vai]{background:var(--verde-claro);color:var(--verde)}
+.chip[data-s=confirmou]{background:var(--verde-claro);color:var(--verde)}
+.chip[data-s=falou]{background:#d9eaf8;color:var(--azul-fundo)}
 .chip[data-s=aguardando]{background:var(--ambar-claro);color:var(--ambar)}
 .chip[data-s=nao]{background:var(--vermelho-claro);color:var(--vermelho)}
 .chip[data-s=sem]{background:var(--cinza-claro);color:var(--cinza)}
@@ -132,7 +143,9 @@ body{
   border:2px solid var(--linha);background:#fff;cursor:pointer;font-family:inherit;
   font-weight:800;font-size:.86rem;padding:10px 8px;border-radius:11px;color:var(--tinta-suave);
 }
-.status-botoes button[aria-pressed=true][data-s=vai]{background:var(--verde-claro);border-color:var(--verde);color:var(--verde)}
+.status-botoes button[aria-pressed=true][data-s=confirmou]{background:var(--verde-claro);border-color:var(--verde);color:var(--verde)}
+.status-botoes button[aria-pressed=true][data-s=falou]{background:#d9eaf8;border-color:var(--azul);color:var(--azul-fundo)}
+.status-botoes button:last-child{grid-column:1/-1}
 .status-botoes button[aria-pressed=true][data-s=aguardando]{background:var(--ambar-claro);border-color:#d9a63c;color:var(--ambar)}
 .status-botoes button[aria-pressed=true][data-s=nao]{background:var(--vermelho-claro);border-color:var(--vermelho);color:var(--vermelho)}
 .status-botoes button[aria-pressed=true][data-s=sem]{background:var(--cinza-claro);border-color:var(--cinza);color:var(--cinza)}
@@ -196,14 +209,14 @@ body{
   </header>
 
   <section class="placar" aria-label="Resumo">
-    <div class="cartao vai"><b id="n-vai">0</b><span>grupos que vão</span></div>
+    <div class="cartao confirmou"><b id="n-confirmou">0</b><span>confirmaram</span></div>
+    <div class="cartao falou"><b id="n-falou">0</b><span>falta confirmar</span></div>
     <div class="cartao pessoas"><b id="n-pessoas">0</b><span>pessoas na festa</span></div>
-    <div class="cartao aguardando"><b id="n-ag">0</b><span>sem resposta</span></div>
     <div class="cartao nao"><b id="n-nao">0</b><span>não vão</span></div>
   </section>
 
   <div class="barra" id="barra" aria-hidden="true">
-    <i class="b-vai"></i><i class="b-ag"></i><i class="b-nao"></i><i class="b-sem"></i>
+    <i class="b-confirmou"></i><i class="b-falou"></i><i class="b-aguardando"></i><i class="b-sem"></i><i class="b-nao"></i>
   </div>
 
   <div class="ferramentas">
@@ -231,9 +244,9 @@ body{
   </form>
 
   <p class="aviso">
-    <b>Antes de mandar o link:</b> o convite não mostra a lista de nomes pra ninguém —
-    quem abre só vê o convite e um campo pra escrever o próprio nome. As confirmações
-    chegam pra você no WhatsApp e você marca aqui.
+    <b>Falou que vai</b> é quem já avisou no zap, mas ainda não mandou pelo link.
+    <b>Confirmou</b> é quem abriu o convite e confirmou de verdade — a mensagem
+    chega no WhatsApp e aí é só tocar no ✓ verde da linha.
   </p>
 </div>
 
@@ -247,35 +260,49 @@ body{
   const CHAVE = "festa-kevin-lista";
   const FESTA = new Date("2026-09-03T19:00:00-03:00");
 
-  const ROTULOS = { vai: "vai", aguardando: "sem resposta", nao: "não vai", sem: "sem convite" };
+  const ROTULOS = {
+    confirmou: "confirmou",
+    falou: "falou",
+    aguardando: "sem resposta",
+    sem: "sem convite",
+    nao: "não vai"
+  };
+  const ROTULOS_BOTAO = {
+    confirmou: "confirmou",
+    falou: "falou que vai",
+    aguardando: "sem resposta",
+    sem: "sem convite",
+    nao: "não vai"
+  };
+  const CONTAM = ["confirmou", "falou"];
   const AVISO_SEM_CONVITE = "Ainda não recebeu o convite";
-  const ORDEM = ["vai", "aguardando", "sem", "nao"];
+  const ORDEM = ["falou", "aguardando", "sem", "confirmou", "nao"];
 
   const PADRAO = {
-    atualizado: "2026-08-23T00:00:00.000Z",
+    atualizado: "2026-08-23T18:00:00.000Z",
     pessoas: [
-      { id: "p1",  nome: "Shirley e família",        s: "vai", q: 4, ob: "" },
-      { id: "p2",  nome: "Luana e Júlio",            s: "vai", q: 2, ob: "" },
-      { id: "p3",  nome: "Marcondes e Dona Isabel",  s: "vai", q: 2, ob: "" },
-      { id: "p4",  nome: "Mica e João",              s: "vai", q: 2, ob: "" },
-      { id: "p5",  nome: "Jones e Lenita",           s: "vai", q: 2, ob: "" },
-      { id: "p6",  nome: "Mateus e Letícia",         s: "vai", q: 2, ob: "" },
-      { id: "p7",  nome: "Davisson",                 s: "vai", q: 1, ob: "" },
-      { id: "p8",  nome: "Galeguinho e família",     s: "vai", q: 4, ob: "" },
-      { id: "p9",  nome: "Família Tenorio",          s: "vai", q: 4, ob: "" },
-      { id: "p10", nome: "Pedra e família",          s: "vai", q: 4, ob: "" },
-      { id: "p11", nome: "Xuxu e família",           s: "vai", q: 4, ob: "" },
-      { id: "p12", nome: "Josiane e família",        s: "vai", q: 4, ob: "" },
-      { id: "p13", nome: "Joelma",                   s: "vai", q: 1, ob: "" },
-      { id: "p14", nome: "Jéssica",                  s: "vai", q: 1, ob: "" },
-      { id: "p15", nome: "Monique e filho",          s: "vai", q: 2, ob: "" },
-      { id: "p16", nome: "Nike e namorado",          s: "vai", q: 2, ob: "" },
-      { id: "p17", nome: "Yago",                     s: "vai", q: 1, ob: "" },
-      { id: "p18", nome: "C. S. e marido",           s: "vai", q: 2, ob: "" },
-      { id: "p19", nome: "Alessandra e família",     s: "vai", q: 4, ob: "" },
-      { id: "p20", nome: "Saulo e família",          s: "vai", q: 4, ob: "" },
-      { id: "p21", nome: "Barto e família",          s: "vai", q: 4, ob: "" },
-      { id: "p22", nome: "Zezinho e Lívia",          s: "vai", q: 2, ob: "" },
+      { id: "p1",  nome: "Shirley e família",        s: "falou", q: 4, ob: "" },
+      { id: "p2",  nome: "Luana e Júlio",            s: "falou", q: 2, ob: "" },
+      { id: "p3",  nome: "Marcondes e Dona Isabel",  s: "falou", q: 2, ob: "" },
+      { id: "p4",  nome: "Mica e João",              s: "falou", q: 2, ob: "" },
+      { id: "p5",  nome: "Jones e Lenita",           s: "falou", q: 2, ob: "" },
+      { id: "p6",  nome: "Mateus e Letícia",         s: "falou", q: 2, ob: "" },
+      { id: "p7",  nome: "Davisson",                 s: "falou", q: 1, ob: "" },
+      { id: "p8",  nome: "Galeguinho e família",     s: "falou", q: 4, ob: "" },
+      { id: "p9",  nome: "Família Tenorio",          s: "falou", q: 4, ob: "" },
+      { id: "p10", nome: "Pedra e família",          s: "falou", q: 4, ob: "" },
+      { id: "p11", nome: "Xuxu e família",           s: "falou", q: 4, ob: "" },
+      { id: "p12", nome: "Josiane e família",        s: "falou", q: 4, ob: "" },
+      { id: "p13", nome: "Joelma",                   s: "falou", q: 1, ob: "" },
+      { id: "p14", nome: "Jéssica",                  s: "falou", q: 1, ob: "" },
+      { id: "p15", nome: "Monique e filho",          s: "falou", q: 2, ob: "" },
+      { id: "p16", nome: "Nike e namorado",          s: "falou", q: 2, ob: "" },
+      { id: "p17", nome: "Yago",                     s: "falou", q: 1, ob: "" },
+      { id: "p18", nome: "C. S. e marido",           s: "falou", q: 2, ob: "" },
+      { id: "p19", nome: "Alessandra e família",     s: "falou", q: 4, ob: "" },
+      { id: "p20", nome: "Saulo e família",          s: "falou", q: 4, ob: "" },
+      { id: "p21", nome: "Barto e família",          s: "falou", q: 4, ob: "" },
+      { id: "p22", nome: "Zezinho e Lívia",          s: "falou", q: 2, ob: "" },
       { id: "p23", nome: "Davila e marido",          s: "nao", q: 2, ob: "" },
       { id: "p24", nome: "Tia Maria",                s: "sem", q: 1, ob: "Ainda não recebeu o convite" },
       { id: "p25", nome: "Mateus casado e família",  s: "sem", q: 4, ob: "Ainda não recebeu o convite" }
@@ -290,6 +317,12 @@ body{
   function valido(x) {
     return x && Array.isArray(x.pessoas) && x.pessoas.length > 0 && typeof x.atualizado === "string";
   }
+  // Listas salvas antes da separação usavam um "vai" só, que na prática
+  // era "falou que vai" — ninguém tinha confirmado pelo link ainda.
+  function migrar(x) {
+    for (const p of x.pessoas) if (p.s === "vai") p.s = "falou";
+    return x;
+  }
   async function carregar() {
     let nuvem = null, aparelho = null;
     try {
@@ -300,7 +333,7 @@ body{
 
     const opcoes = [nuvem, aparelho, PADRAO].filter(valido);
     opcoes.sort((a, b) => (a.atualizado < b.atualizado ? 1 : -1));
-    estado = JSON.parse(JSON.stringify(opcoes[0]));
+    estado = migrar(JSON.parse(JSON.stringify(opcoes[0])));
   }
 
   /* ---------- salvar ---------- */
@@ -332,20 +365,23 @@ body{
   const lista = document.getElementById("lista");
 
   function contas() {
-    const c = { vai: 0, aguardando: 0, nao: 0, sem: 0, pessoas: 0 };
-    for (const p of estado.pessoas) { c[p.s]++; if (p.s === "vai") c.pessoas += p.q; }
+    const c = { confirmou: 0, falou: 0, aguardando: 0, sem: 0, nao: 0, pessoas: 0 };
+    for (const p of estado.pessoas) {
+      c[p.s]++;
+      if (CONTAM.includes(p.s)) c.pessoas += p.q;
+    }
     return c;
   }
 
   function desenharPlacar() {
     const c = contas();
-    document.getElementById("n-vai").textContent = c.vai;
+    document.getElementById("n-confirmou").textContent = c.confirmou;
+    document.getElementById("n-falou").textContent = c.falou + c.aguardando + c.sem;
     document.getElementById("n-pessoas").textContent = c.pessoas;
-    document.getElementById("n-ag").textContent = c.aguardando;
     document.getElementById("n-nao").textContent = c.nao;
     const total = estado.pessoas.length || 1;
     const barra = document.getElementById("barra");
-    const larguras = [c.vai, c.aguardando, c.nao, c.sem];
+    const larguras = [c.confirmou, c.falou, c.aguardando, c.sem, c.nao];
     barra.querySelectorAll("i").forEach((el, i) => { el.style.width = (larguras[i] / total * 100) + "%"; });
   }
 
@@ -364,23 +400,46 @@ body{
     li.className = "pessoa" + (aberta === p.id ? " aberta" : "");
     li.dataset.s = p.s;
 
-    const cabeca = document.createElement("button");
-    cabeca.type = "button";
+    const cabeca = document.createElement("div");
     cabeca.className = "cabeca";
-    cabeca.setAttribute("aria-expanded", aberta === p.id ? "true" : "false");
-    cabeca.innerHTML =
-      '<span class="quem"><span class="nm"></span><span class="ob"></span></span>' +
+
+    const abrirLinha = document.createElement("button");
+    abrirLinha.type = "button";
+    abrirLinha.className = "abrir-linha";
+    abrirLinha.setAttribute("aria-expanded", aberta === p.id ? "true" : "false");
+    abrirLinha.innerHTML =
+      '<span class="quem"><span class="nm"></span>' +
+        '<span class="meta"><span class="chip"></span><span class="ob"></span></span>' +
+      '</span>' +
       '<span class="qtd-chip"></span>' +
-      '<span class="chip"></span>' +
       '<svg class="seta" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
-    cabeca.querySelector(".nm").textContent = p.nome;
-    const ob = cabeca.querySelector(".ob");
+    abrirLinha.querySelector(".nm").textContent = p.nome;
+    const ob = abrirLinha.querySelector(".ob");
     if (p.ob) ob.textContent = p.ob; else ob.remove();
-    const qtd = cabeca.querySelector(".qtd-chip");
-    if (p.s === "vai") qtd.textContent = p.q; else qtd.remove();
-    const chip = cabeca.querySelector(".chip");
+    const qtd = abrirLinha.querySelector(".qtd-chip");
+    if (CONTAM.includes(p.s)) qtd.textContent = p.q; else qtd.remove();
+    const chip = abrirLinha.querySelector(".chip");
     chip.dataset.s = p.s; chip.textContent = ROTULOS[p.s];
-    cabeca.addEventListener("click", () => { aberta = aberta === p.id ? null : p.id; desenharLista(); });
+    abrirLinha.addEventListener("click", () => { aberta = aberta === p.id ? null : p.id; desenharLista(); });
+    cabeca.append(abrirLinha);
+
+    // Atalho pra quando a confirmação chegar no WhatsApp: um toque e pronto.
+    if (p.s !== "confirmou" && p.s !== "nao") {
+      const tick = document.createElement("button");
+      tick.type = "button";
+      tick.className = "tick";
+      tick.title = "Marcar como confirmado";
+      tick.setAttribute("aria-label", "Marcar " + p.nome + " como confirmado");
+      tick.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 5 5 9-11"/></svg>';
+      tick.addEventListener("click", () => {
+        p.s = "confirmou";
+        if (p.ob === AVISO_SEM_CONVITE) p.ob = "";
+        salvar(); desenharPlacar(); desenharLista();
+        avisar(p.nome + " confirmou");
+      });
+      cabeca.append(tick);
+    }
+
     li.append(cabeca);
 
     const det = document.createElement("div");
@@ -398,7 +457,7 @@ body{
     const botoes = det.querySelector(".status-botoes");
     for (const s of ORDEM) {
       const b = document.createElement("button");
-      b.type = "button"; b.dataset.s = s; b.textContent = ROTULOS[s];
+      b.type = "button"; b.dataset.s = s; b.textContent = ROTULOS_BOTAO[s];
       b.setAttribute("aria-pressed", p.s === s ? "true" : "false");
       b.addEventListener("click", () => {
         p.s = s;
@@ -461,12 +520,16 @@ body{
     const c = contas();
     const por = s => estado.pessoas.filter(p => p.s === s)
       .sort((a, b) => a.nome.localeCompare(b.nome, "pt"))
-      .map(p => "- " + p.nome + (s === "vai" ? " (" + p.q + ")" : "")).join("\n");
+      .map(p => "- " + p.nome + (CONTAM.includes(s) ? " (" + p.q + ")" : "")).join("\n");
     const linhas = [
       "Festa do Kevin Brian - 3 de setembro, 19h, Salão Pura Magia",
+      "Total esperado: " + c.pessoas + " pessoas",
       "",
-      "VÃO (" + c.vai + " grupos, " + c.pessoas + " pessoas)",
-      por("vai"),
+      "CONFIRMARAM PELO LINK (" + c.confirmou + ")",
+      por("confirmou") || "-",
+      "",
+      "FALARAM QUE VÃO, FALTA CONFIRMAR (" + c.falou + ")",
+      por("falou") || "-",
       "",
       "SEM RESPOSTA (" + c.aguardando + ")",
       por("aguardando") || "-",
