@@ -199,6 +199,38 @@ a.linha:hover,a.linha:focus-visible{background:#fff;border-color:var(--verde)}
   padding:12px 13px;width:100%;
 }
 .campo textarea{resize:vertical;min-height:64px}
+.busca-nome{position:relative}
+.busca-nome svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;fill:none;stroke:var(--tinta-suave);stroke-width:2;stroke-linecap:round}
+.busca-nome input[type=search]{
+  font-family:inherit;font-size:1.02rem;color:var(--tinta);width:100%;
+  background:#fff;border:2px solid var(--linha);border-radius:13px;
+  padding:12px 13px 12px 39px;-webkit-appearance:none;appearance:none;
+}
+.busca-nome input:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(124,191,90,.3)}
+.achados{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:244px;overflow-y:auto}
+.achados button{
+  width:100%;text-align:left;font-family:inherit;font-size:1rem;font-weight:700;color:var(--tinta);
+  background:#fff;border:2px solid var(--linha);border-radius:12px;padding:13px 14px;cursor:pointer;
+}
+.achados button:hover,.achados button:focus-visible{border-color:var(--verde);background:#f2f9ec}
+.achados mark{background:#fbeaa0;color:inherit;border-radius:3px;padding:0 1px}
+.dica-busca{font-size:.85rem;color:var(--tinta-suave);margin:3px 0 0;line-height:1.4}
+.dica-busca button{
+  border:0;background:none;color:var(--azul-fundo);font-family:inherit;font-size:inherit;
+  font-weight:800;text-decoration:underline;cursor:pointer;padding:0;
+}
+.escolhido{
+  display:flex;align-items:center;gap:11px;background:#eef7e5;
+  border:2px dashed rgba(124,191,90,.7);border-radius:14px;padding:12px 14px;
+}
+.escolhido .quem{flex:1;min-width:0}
+.escolhido .rot{display:block;font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--tinta-suave)}
+.escolhido strong{display:block;font-size:1.06rem;color:var(--verde-fundo);line-height:1.25;overflow-wrap:anywhere}
+.escolhido .trocar{
+  flex:none;border:0;background:none;color:var(--azul-fundo);font-family:inherit;
+  font-size:.85rem;font-weight:800;text-decoration:underline;cursor:pointer;padding:4px;
+}
+[hidden]{display:none !important}
 .campo input:focus,.campo textarea:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(124,191,90,.3)}
 .contador{display:flex;align-items:center;gap:12px}
 .contador button{
@@ -338,12 +370,27 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
 
   <form class="painel" id="painel" novalidate>
     <h2>Quem vem pra fazendinha?</h2>
-    <div class="campo">
-      <label for="nome">Seu nome</label>
-      <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Ex.: Shirley" enterkeyhint="next">
+    <div class="campo" id="passoBusca">
+      <label for="nome">Procure seu nome na lista</label>
+      <div class="busca-nome">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none"/><path d="m16 16 4.5 4.5"/></svg>
+        <input type="search" id="nome" autocomplete="off" autocapitalize="words"
+               placeholder="Digite as primeiras letras" enterkeyhint="search"
+               role="combobox" aria-expanded="false" aria-controls="achados" aria-autocomplete="list">
+      </div>
+      <ul class="achados" id="achados" role="listbox" aria-label="Nomes encontrados" hidden></ul>
+      <p class="dica-busca" id="dicaBusca">
+        <span id="dicaTexto">Escreva pelo menos duas letras do seu nome.</span>
+        <button type="button" id="usarLivre">Não achei meu nome</button>
+      </p>
     </div>
-    <p class="erro" id="erro" hidden>Escreva seu nome pra gente saber quem é.</p>
-    <div class="campo">
+
+    <div class="escolhido" id="escolhido" hidden>
+      <span class="quem"><span class="rot">Você é</span><strong id="escolhidoNome"></strong></span>
+      <button type="button" class="trocar" id="trocar">trocar</button>
+    </div>
+    <p class="erro" id="erro" hidden>Escolha seu nome na lista pra gente saber quem é.</p>
+    <div class="campo" id="passoQtd" hidden>
       <label for="qtd">Vão quantas pessoas no total</label>
       <div class="contador">
         <button type="button" id="menos" aria-label="Diminuir">−</button>
@@ -351,11 +398,11 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
         <button type="button" id="mais" aria-label="Aumentar">+</button>
       </div>
     </div>
-    <div class="campo">
+    <div class="campo" id="passoRecado" hidden>
       <label for="recado">Recado (opcional)</label>
       <textarea id="recado" placeholder="Alguma coisa que queira avisar?"></textarea>
     </div>
-    <button type="submit" class="enviar">Enviar confirmação</button>
+    <button type="submit" class="enviar" id="enviar" hidden>Enviar confirmação</button>
     <button type="button" class="voltar" id="fechar">Agora não</button>
   </form>
 
@@ -381,6 +428,24 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   const WHATSAPP = "5582981677788";
 
   const FESTA = new Date("2026-09-03T19:00:00-03:00");
+
+  // Quem foi convidado, com o tamanho provável do grupo. O número é só um
+  // palpite inicial — a pessoa ajusta no + e no - antes de enviar.
+  const CONVIDADOS = [
+    ["Shirley e família", 4], ["Luana e Júlio", 2], ["Marcondes e Dona Isabel", 2],
+    ["Mica e João", 2], ["Jones e Lenita", 2], ["Mateus e Letícia", 2],
+    ["Davisson", 1], ["Galeguinho e família", 4], ["Família Tenorio", 4],
+    ["Pedra e família", 4], ["Xuxu e família", 4], ["Josiane e família", 4],
+    ["Joelma", 1], ["Jéssica", 1], ["Monique e filho", 2],
+    ["Nike e namorado", 2], ["Yago", 1], ["C. S. e marido", 2],
+    ["Alessandra e família", 4], ["Saulo e família", 4], ["Barto e família", 4],
+    ["Zezinho e Lívia", 2], ["Davila e marido", 2], ["Tia Maria", 1],
+    ["Mateus casado e família", 4]
+  ].map(([nome, q]) => ({ nome, q, busca: sem_acento(nome) }));
+
+  function sem_acento(t) {
+    return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
 
   /* ---------- contagem regressiva ---------- */
   const cd = { d: document.getElementById("cd-d"), h: document.getElementById("cd-h"), m: document.getElementById("cd-m") };
@@ -414,7 +479,126 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   const campoRecado = document.getElementById("recado");
   const saidaQtd = document.getElementById("qtd");
   const erro = document.getElementById("erro");
+  const achados = document.getElementById("achados");
+  const passoBusca = document.getElementById("passoBusca");
+  const passoQtd = document.getElementById("passoQtd");
+  const passoRecado = document.getElementById("passoRecado");
+  const btnEnviar = document.getElementById("enviar");
+  const caixaEscolhido = document.getElementById("escolhido");
+  const dicaTexto = document.getElementById("dicaTexto");
+  const btnUsarLivre = document.getElementById("usarLivre");
+
   let quantos = 1;
+  let nomeEscolhido = "";
+  let modoLivre = false;
+
+  /* ---------- busca na lista de convidados ---------- */
+  function procurar(termo) {
+    const t = sem_acento(termo.trim());
+    if (t.length < 2) return null;
+    const comeca = [], contem = [];
+    for (const c of CONVIDADOS) {
+      const onde = c.busca.indexOf(t);
+      if (onde === 0) comeca.push(c);
+      else if (onde > 0) contem.push(c);
+    }
+    return comeca.concat(contem).slice(0, 6);
+  }
+
+  function realcar(nome, termo) {
+    const onde = sem_acento(nome).indexOf(sem_acento(termo.trim()));
+    if (onde < 0) return document.createTextNode(nome);
+    const frag = document.createDocumentFragment();
+    const mark = document.createElement("mark");
+    mark.textContent = nome.slice(onde, onde + termo.trim().length);
+    frag.append(nome.slice(0, onde), mark, nome.slice(onde + termo.trim().length));
+    return frag;
+  }
+
+  function mostrarAchados() {
+    if (modoLivre) return;
+    const termo = campoNome.value;
+    const lista = procurar(termo);
+
+    if (lista === null) {
+      achados.hidden = true;
+      achados.replaceChildren();
+      campoNome.setAttribute("aria-expanded", "false");
+      dicaTexto.textContent = "Escreva pelo menos duas letras do seu nome.";
+      return;
+    }
+    if (lista.length === 0) {
+      achados.hidden = true;
+      achados.replaceChildren();
+      campoNome.setAttribute("aria-expanded", "false");
+      dicaTexto.textContent = "Nenhum nome com essas letras.";
+      return;
+    }
+
+    achados.replaceChildren(...lista.map(c => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      const b = document.createElement("button");
+      b.type = "button";
+      b.append(realcar(c.nome, termo));
+      b.addEventListener("click", () => escolher(c.nome, c.q));
+      li.append(b);
+      return li;
+    }));
+    achados.hidden = false;
+    campoNome.setAttribute("aria-expanded", "true");
+    dicaTexto.textContent = "Toque no seu nome.";
+  }
+
+  function escolher(nome, q) {
+    nomeEscolhido = nome;
+    quantos = q || 1;
+    saidaQtd.textContent = quantos;
+    document.getElementById("escolhidoNome").textContent = nome;
+    passoBusca.hidden = true;
+    achados.hidden = true;
+    caixaEscolhido.hidden = false;
+    passoQtd.hidden = false;
+    passoRecado.hidden = false;
+    btnEnviar.hidden = false;
+    erro.hidden = true;
+    btnEnviar.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function voltarPraBusca() {
+    nomeEscolhido = "";
+    modoLivre = false;
+    campoNome.type = "search";
+    campoNome.value = "";
+    campoNome.placeholder = "Digite as primeiras letras";
+    btnUsarLivre.hidden = false;
+    caixaEscolhido.hidden = true;
+    passoBusca.hidden = false;
+    passoQtd.hidden = true;
+    passoRecado.hidden = true;
+    btnEnviar.hidden = true;
+    mostrarAchados();
+    campoNome.focus();
+  }
+
+  // Escape pra quem não está na lista: acompanhante, alguém esquecido.
+  btnUsarLivre.addEventListener("click", () => {
+    modoLivre = true;
+    achados.hidden = true;
+    campoNome.type = "text";
+    campoNome.value = "";
+    campoNome.placeholder = "Escreva seu nome";
+    campoNome.setAttribute("autocomplete", "name");
+    dicaTexto.textContent = "Escreva seu nome e continue.";
+    btnUsarLivre.hidden = true;
+    passoQtd.hidden = false;
+    passoRecado.hidden = false;
+    btnEnviar.hidden = false;
+    campoNome.focus();
+  });
+
+  document.getElementById("trocar").addEventListener("click", voltarPraBusca);
+  campoNome.addEventListener("input", () => { erro.hidden = true; mostrarAchados(); });
 
   function abrir() {
     painel.classList.add("aberto");
@@ -430,9 +614,12 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   });
   document.getElementById("refazer").addEventListener("click", () => {
     pronto.classList.remove("aberto");
-    campoNome.value = ""; campoRecado.value = "";
+    campoRecado.value = "";
     quantos = 1; saidaQtd.textContent = "1";
-    abrir();
+    voltarPraBusca();
+    painel.classList.add("aberto");
+    btnAbrir.hidden = true;
+    painel.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
   function ajusta(n) {
@@ -441,12 +628,18 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   }
   document.getElementById("menos").addEventListener("click", () => ajusta(-1));
   document.getElementById("mais").addEventListener("click", () => ajusta(1));
-  campoNome.addEventListener("input", () => { erro.hidden = true; });
 
   painel.addEventListener("submit", (ev) => {
     ev.preventDefault();
-    const nome = campoNome.value.trim();
-    if (nome.length < 2) { erro.hidden = false; campoNome.focus(); return; }
+    const nome = modoLivre ? campoNome.value.trim() : nomeEscolhido;
+    if (nome.length < 2) {
+      erro.textContent = modoLivre
+        ? "Escreva seu nome pra gente saber quem é."
+        : "Escolha seu nome na lista pra gente saber quem é.";
+      erro.hidden = false;
+      campoNome.focus();
+      return;
+    }
 
     const recado = campoRecado.value.trim();
     let msg = "Oi! Confirmo presença no aniversário do Kevin Brian 🎉🐄\n\n"
