@@ -168,6 +168,20 @@ body{
   background:#fff;border:2px solid var(--linha);border-radius:11px;padding:10px 12px;
 }
 .detalhe input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(42,109,181,.18)}
+.membros{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.membros label{
+  display:flex;align-items:center;gap:11px;cursor:pointer;
+  background:#fff;border:2px solid var(--linha);border-radius:11px;padding:10px 12px;
+  font-size:.97rem;font-weight:700;color:var(--tinta);
+}
+.membros label:has(input:checked){border-color:var(--verde);background:#f2f9ec}
+.membros label:has(input:not(:checked)){opacity:.6}
+.membros input{flex:none;width:21px;height:21px;accent-color:var(--verde);margin:0;cursor:pointer}
+.membros .risca{text-decoration:line-through;text-decoration-color:rgba(59,42,27,.45)}
+.faltando{
+  display:block;font-size:.79rem;line-height:1.3;color:var(--vermelho);font-weight:700;
+  overflow-wrap:anywhere;
+}
 .apagar{align-self:flex-start;border:0;background:none;cursor:pointer;font-family:inherit;font-size:.83rem;color:var(--vermelho);text-decoration:underline;padding:2px}
 
 .vazio{text-align:center;color:var(--tinta-suave);font-size:.92rem;padding:22px 8px}
@@ -288,11 +302,11 @@ body{
     atualizado: "2026-08-23T18:00:00.000Z",
     pessoas: [
       { id: "p1",  nome: "Shirley e família",        s: "falou", q: 4, ob: "" },
-      { id: "p2",  nome: "Luana e Júlio",            s: "falou", q: 2, ob: "" },
-      { id: "p3",  nome: "Marcondes e Dona Isabel",  s: "falou", q: 2, ob: "" },
-      { id: "p4",  nome: "Mica e João",              s: "falou", q: 2, ob: "" },
-      { id: "p5",  nome: "Jones e Lenita",           s: "falou", q: 2, ob: "" },
-      { id: "p6",  nome: "Mateus e Letícia",         s: "falou", q: 2, ob: "" },
+      { id: "p2",  nome: "Luana e Júlio",            s: "falou", q: 2, ob: "", m: ["Luana", "Júlio"], fora: [] },
+      { id: "p3",  nome: "Marcondes e Dona Isabel",  s: "falou", q: 2, ob: "", m: ["Marcondes", "Dona Isabel"], fora: [] },
+      { id: "p4",  nome: "Mica e João",              s: "falou", q: 2, ob: "", m: ["Mica", "João"], fora: [] },
+      { id: "p5",  nome: "Jones e Lenita",           s: "falou", q: 2, ob: "", m: ["Jones", "Lenita"], fora: [] },
+      { id: "p6",  nome: "Mateus e Letícia",         s: "falou", q: 2, ob: "", m: ["Mateus", "Letícia"], fora: [] },
       { id: "p7",  nome: "Davisson",                 s: "falou", q: 1, ob: "" },
       { id: "p8",  nome: "Galeguinho e família",     s: "falou", q: 4, ob: "" },
       { id: "p9",  nome: "Família Tenorio",          s: "falou", q: 4, ob: "" },
@@ -308,7 +322,7 @@ body{
       { id: "p19", nome: "Alessandra e família",     s: "falou", q: 4, ob: "" },
       { id: "p20", nome: "Saulo e família",          s: "falou", q: 4, ob: "" },
       { id: "p21", nome: "Barto e família",          s: "falou", q: 4, ob: "" },
-      { id: "p22", nome: "Zezinho e Lívia",          s: "falou", q: 2, ob: "" },
+      { id: "p22", nome: "Zezinho e Lívia",          s: "falou", q: 2, ob: "", m: ["Zezinho", "Lívia"], fora: [] },
       { id: "p23", nome: "Davila e marido",          s: "nao", q: 2, ob: "" },
       { id: "p24", nome: "Tia Maria",                s: "sem", q: 1, ob: "Ainda não recebeu o convite" },
       { id: "p25", nome: "Mateus casado e família",  s: "sem", q: 4, ob: "Ainda não recebeu o convite" }
@@ -421,7 +435,15 @@ body{
       '<svg class="seta" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
     abrirLinha.querySelector(".nm").textContent = p.nome;
     const ob = abrirLinha.querySelector(".ob");
-    if (p.ob) ob.textContent = p.ob; else ob.remove();
+    const fora = (p.fora || []).filter(x => (p.m || []).includes(x));
+    if (fora.length) {
+      ob.className = "faltando";
+      ob.textContent = "sem " + fora.join(", ");
+    } else if (p.ob) {
+      ob.textContent = p.ob;
+    } else {
+      ob.remove();
+    }
     const qtd = abrirLinha.querySelector(".qtd-chip");
     if (CONTAM.includes(p.s)) qtd.textContent = p.q; else qtd.remove();
     const chip = abrirLinha.querySelector(".chip");
@@ -452,10 +474,12 @@ body{
     det.className = "detalhe";
     det.innerHTML =
       '<p class="rotulo">Situação</p><div class="status-botoes"></div>' +
-      '<p class="rotulo">Quantas pessoas</p>' +
-      '<div class="contador"><button type="button" class="menos" aria-label="Diminuir">−</button>' +
-      '<output class="saida"></output>' +
-      '<button type="button" class="mais" aria-label="Aumentar">+</button></div>' +
+      (p.m
+        ? '<p class="rotulo rot-membros">Quem vai</p><ul class="membros"></ul>'
+        : '<p class="rotulo">Quantas pessoas</p>' +
+          '<div class="contador"><button type="button" class="menos" aria-label="Diminuir">−</button>' +
+          '<output class="saida"></output>' +
+          '<button type="button" class="mais" aria-label="Aumentar">+</button></div>') +
       '<p class="rotulo">Nome</p><input type="text" class="ed-nome">' +
       '<p class="rotulo">Observação</p><input type="text" class="ed-ob" placeholder="Ex.: chega mais tarde">' +
       '<button type="button" class="apagar">Tirar da lista</button>';
@@ -473,16 +497,47 @@ body{
       botoes.append(b);
     }
 
-    const saida = det.querySelector(".saida");
-    saida.textContent = p.q;
-    det.querySelector(".menos").addEventListener("click", () => {
-      p.q = Math.max(1, p.q - 1); saida.textContent = p.q; salvar(); desenharPlacar();
-      const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
-    });
-    det.querySelector(".mais").addEventListener("click", () => {
-      p.q = Math.min(30, p.q + 1); saida.textContent = p.q; salvar(); desenharPlacar();
-      const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
-    });
+    if (p.m) {
+      const caixa = det.querySelector(".membros");
+      const rot = det.querySelector(".rot-membros");
+      const contar = () => {
+        p.fora = (p.fora || []).filter(x => p.m.includes(x));
+        p.q = Math.max(0, p.m.length - p.fora.length);
+        rot.textContent = "Quem vai (" + p.q + (p.q === 1 ? " pessoa)" : " pessoas)");
+      };
+      caixa.replaceChildren(...p.m.map(pessoa => {
+        const li2 = document.createElement("li");
+        const rotulo = document.createElement("label");
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = !(p.fora || []).includes(pessoa);
+        const txt = document.createElement("span");
+        txt.textContent = pessoa;
+        if (!chk.checked) txt.className = "risca";
+        chk.addEventListener("change", () => {
+          const fora = new Set(p.fora || []);
+          if (chk.checked) fora.delete(pessoa); else fora.add(pessoa);
+          p.fora = [...fora];
+          txt.className = chk.checked ? "" : "risca";
+          contar(); salvar(); desenharPlacar(); desenharLista();
+        });
+        rotulo.append(chk, txt);
+        li2.append(rotulo);
+        return li2;
+      }));
+      contar();
+    } else {
+      const saida = det.querySelector(".saida");
+      saida.textContent = p.q;
+      det.querySelector(".menos").addEventListener("click", () => {
+        p.q = Math.max(1, p.q - 1); saida.textContent = p.q; salvar(); desenharPlacar();
+        const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
+      });
+      det.querySelector(".mais").addEventListener("click", () => {
+        p.q = Math.min(30, p.q + 1); saida.textContent = p.q; salvar(); desenharPlacar();
+        const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
+      });
+    }
 
     const edNome = det.querySelector(".ed-nome");
     edNome.value = p.nome;
@@ -526,7 +581,12 @@ body{
     const c = contas();
     const por = s => estado.pessoas.filter(p => p.s === s)
       .sort((a, b) => a.nome.localeCompare(b.nome, "pt"))
-      .map(p => "- " + p.nome + (CONTAM.includes(s) ? " (" + p.q + ")" : "")).join("\n");
+      .map(p => {
+        let l = "- " + p.nome + (CONTAM.includes(s) ? " (" + p.q + ")" : "");
+        const fora = (p.fora || []).filter(x => (p.m || []).includes(x));
+        if (fora.length && CONTAM.includes(s)) l += " — sem " + fora.join(", ");
+        return l;
+      }).join("\n");
     const linhas = [
       "Festa do Kevin Brian - 3 de setembro, 19h, Salão Pura Magia",
       "Total esperado: " + c.pessoas + " pessoas",

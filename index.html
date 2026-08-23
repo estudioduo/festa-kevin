@@ -230,6 +230,24 @@ a.linha:hover,a.linha:focus-visible{background:#fff;border-color:var(--verde)}
   flex:none;border:0;background:none;color:var(--azul-fundo);font-family:inherit;
   font-size:.85rem;font-weight:800;text-decoration:underline;cursor:pointer;padding:4px;
 }
+.membros{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.membros label{
+  text-transform:none;letter-spacing:normal;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  background:#fff;border:2px solid var(--linha);border-radius:12px;padding:12px 14px;
+  font-size:1rem;font-weight:700;color:var(--tinta);transition:border-color .15s,background .15s;
+}
+.membros label:has(input:checked){border-color:var(--verde);background:#f2f9ec}
+.membros label:has(input:not(:checked)){opacity:.62}
+.membros input{
+  flex:none;width:23px;height:23px;accent-color:var(--verde-fundo);margin:0;cursor:pointer;
+}
+.membros .risca{text-decoration:line-through;text-decoration-color:rgba(59,42,27,.45)}
+.dica-membros{font-size:.85rem;color:var(--tinta-suave);margin:9px 0 0}
+.ninguem{
+  background:#fadfe5;border:2px dashed #d79aa8;border-radius:12px;
+  padding:11px 13px;font-size:.88rem;color:#8d3549;font-weight:700;margin:9px 0 0;
+}
 [hidden]{display:none !important}
 .campo input:focus,.campo textarea:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(124,191,90,.3)}
 .contador{display:flex;align-items:center;gap:12px}
@@ -390,6 +408,13 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
       <button type="button" class="trocar" id="trocar">trocar</button>
     </div>
     <p class="erro" id="erro" hidden>Escolha seu nome na lista pra gente saber quem é.</p>
+    <div class="campo" id="passoMembros" hidden>
+      <label id="rotuloMembros">Quem vai</label>
+      <ul class="membros" id="membros"></ul>
+      <p class="dica-membros">Desmarque quem não puder ir.</p>
+      <p class="ninguem" id="ninguem" hidden>Ninguém marcado — vamos avisar que o grupo não vai.</p>
+    </div>
+
     <div class="campo" id="passoQtd" hidden>
       <label for="qtd">Vão quantas pessoas no total</label>
       <div class="contador">
@@ -431,17 +456,35 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
 
   // Quem foi convidado, com o tamanho provável do grupo. O número é só um
   // palpite inicial — a pessoa ajusta no + e no - antes de enviar.
+  // Cada grupo pode vir com os nomes de quem foi convidado (m) ou, enquanto
+  // esses nomes não chegam, só com o tamanho provável do grupo (q).
   const CONVIDADOS = [
-    ["Shirley e família", 4], ["Luana e Júlio", 2], ["Marcondes e Dona Isabel", 2],
-    ["Mica e João", 2], ["Jones e Lenita", 2], ["Mateus e Letícia", 2],
-    ["Davisson", 1], ["Galeguinho e família", 4], ["Família Tenorio", 4],
-    ["Pedra e família", 4], ["Xuxu e família", 4], ["Josiane e família", 4],
-    ["Joelma", 1], ["Jéssica", 1], ["Monique e filho", 2],
-    ["Nike e namorado", 2], ["Yago", 1], ["C. S. e marido", 2],
-    ["Alessandra e família", 4], ["Saulo e família", 4], ["Barto e família", 4],
-    ["Zezinho e Lívia", 2], ["Davila e marido", 2], ["Tia Maria", 1],
-    ["Mateus casado e família", 4]
-  ].map(([nome, q]) => ({ nome, q, busca: sem_acento(nome) }));
+    { g: "Luana e Júlio",            m: ["Luana", "Júlio"] },
+    { g: "Marcondes e Dona Isabel",  m: ["Marcondes", "Dona Isabel"] },
+    { g: "Mica e João",              m: ["Mica", "João"] },
+    { g: "Jones e Lenita",           m: ["Jones", "Lenita"] },
+    { g: "Mateus e Letícia",         m: ["Mateus", "Letícia"] },
+    { g: "Zezinho e Lívia",          m: ["Zezinho", "Lívia"] },
+    { g: "Davisson",                 m: ["Davisson"] },
+    { g: "Joelma",                   m: ["Joelma"] },
+    { g: "Jéssica",                  m: ["Jéssica"] },
+    { g: "Yago",                     m: ["Yago"] },
+    { g: "Tia Maria",                m: ["Tia Maria"] },
+    { g: "Monique e filho",          q: 2 },
+    { g: "Nike e namorado",          q: 2 },
+    { g: "C. S. e marido",           q: 2 },
+    { g: "Davila e marido",          q: 2 },
+    { g: "Shirley e família",        q: 4 },
+    { g: "Galeguinho e família",     q: 4 },
+    { g: "Família Tenorio",          q: 4 },
+    { g: "Pedra e família",          q: 4 },
+    { g: "Xuxu e família",           q: 4 },
+    { g: "Josiane e família",        q: 4 },
+    { g: "Alessandra e família",     q: 4 },
+    { g: "Saulo e família",          q: 4 },
+    { g: "Barto e família",          q: 4 },
+    { g: "Mateus casado e família",  q: 4 }
+  ].map(c => ({ ...c, nome: c.g, busca: sem_acento(c.g + " " + (c.m || []).join(" ")) }));
 
   function sem_acento(t) {
     return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -488,9 +531,14 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   const dicaTexto = document.getElementById("dicaTexto");
   const btnUsarLivre = document.getElementById("usarLivre");
 
+  const passoMembros = document.getElementById("passoMembros");
+  const listaMembros = document.getElementById("membros");
+
   let quantos = 1;
   let nomeEscolhido = "";
   let modoLivre = false;
+  let grupoAtual = null;
+  let vao = [];
 
   /* ---------- busca na lista de convidados ---------- */
   function procurar(termo) {
@@ -541,7 +589,7 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
       const b = document.createElement("button");
       b.type = "button";
       b.append(realcar(c.nome, termo));
-      b.addEventListener("click", () => escolher(c.nome, c.q));
+      b.addEventListener("click", () => escolher(c));
       li.append(b);
       return li;
     }));
@@ -550,23 +598,68 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
     dicaTexto.textContent = "Toque no seu nome.";
   }
 
-  function escolher(nome, q) {
-    nomeEscolhido = nome;
-    quantos = q || 1;
-    saidaQtd.textContent = quantos;
-    document.getElementById("escolhidoNome").textContent = nome;
+  function escolher(grupo) {
+    grupoAtual = grupo;
+    nomeEscolhido = grupo.nome;
+    document.getElementById("escolhidoNome").textContent = grupo.nome;
+
+    if (grupo.m) {
+      vao = grupo.m.map(() => true);
+      desenharMembros();
+      passoMembros.hidden = false;
+      passoQtd.hidden = true;
+    } else {
+      quantos = grupo.q || 1;
+      saidaQtd.textContent = quantos;
+      passoMembros.hidden = true;
+      passoQtd.hidden = false;
+    }
+
     passoBusca.hidden = true;
     achados.hidden = true;
     caixaEscolhido.hidden = false;
-    passoQtd.hidden = false;
     passoRecado.hidden = false;
     btnEnviar.hidden = false;
     erro.hidden = true;
     btnEnviar.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  function desenharMembros() {
+    listaMembros.replaceChildren(...grupoAtual.m.map((pessoa, i) => {
+      const li = document.createElement("li");
+      const rot = document.createElement("label");
+      const caixa = document.createElement("input");
+      caixa.type = "checkbox";
+      caixa.checked = vao[i];
+      const txt = document.createElement("span");
+      txt.textContent = pessoa;
+      if (!vao[i]) txt.className = "risca";
+      caixa.addEventListener("change", () => {
+        vao[i] = caixa.checked;
+        txt.className = caixa.checked ? "" : "risca";
+        atualizarEstadoMembros();
+      });
+      rot.append(caixa, txt);
+      li.append(rot);
+      return li;
+    }));
+    atualizarEstadoMembros();
+  }
+
+  function atualizarEstadoMembros() {
+    const quantosVao = vao.filter(Boolean).length;
+    document.getElementById("ninguem").hidden = quantosVao > 0;
+    btnEnviar.textContent = quantosVao > 0 ? "Enviar confirmação" : "Avisar que não vamos";
+    document.getElementById("rotuloMembros").textContent =
+      quantosVao === 1 ? "Quem vai (1 pessoa)" : "Quem vai (" + quantosVao + " pessoas)";
+  }
+
   function voltarPraBusca() {
     nomeEscolhido = "";
+    grupoAtual = null;
+    vao = [];
+    passoMembros.hidden = true;
+    btnEnviar.textContent = "Enviar confirmação";
     modoLivre = false;
     campoNome.type = "search";
     campoNome.value = "";
@@ -591,6 +684,10 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
     campoNome.setAttribute("autocomplete", "name");
     dicaTexto.textContent = "Escreva seu nome e continue.";
     btnUsarLivre.hidden = true;
+    grupoAtual = null;
+    quantos = 1;
+    saidaQtd.textContent = 1;
+    passoMembros.hidden = true;
     passoQtd.hidden = false;
     passoRecado.hidden = false;
     btnEnviar.hidden = false;
@@ -642,20 +739,51 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
     }
 
     const recado = campoRecado.value.trim();
-    let msg = "Oi! Confirmo presença no aniversário do Kevin Brian 🎉🐄\n\n"
-            + "Nome: " + nome + "\n"
-            + "Vamos em: " + quantos + (quantos === 1 ? " pessoa" : " pessoas");
+    const temNomes = !modoLivre && grupoAtual && grupoAtual.m;
+    const listaVao = temNomes ? grupoAtual.m.filter((_, i) => vao[i]) : [];
+    const listaNao = temNomes ? grupoAtual.m.filter((_, i) => !vao[i]) : [];
+    const total = temNomes ? listaVao.length : quantos;
+
+    let msg;
+    if (temNomes && listaVao.length === 0) {
+      msg = "Oi! Infelizmente não vamos poder ir no aniversário do Kevin Brian 😔\n\n"
+          + "Grupo: " + nome + "\n"
+          + "Não vão: " + listaNao.join(", ");
+    } else {
+      msg = "Oi! Confirmo presença no aniversário do Kevin Brian 🎉🐄\n\n"
+          + (temNomes ? "Grupo: " : "Nome: ") + nome + "\n";
+      if (temNomes) {
+        msg += "Vão (" + listaVao.length + "): " + listaVao.join(", ");
+        if (listaNao.length) msg += "\nNão vão (" + listaNao.length + "): " + listaNao.join(", ");
+      } else {
+        msg += "Vamos em: " + total + (total === 1 ? " pessoa" : " pessoas");
+      }
+    }
     if (recado) msg += "\nRecado: " + recado;
     entregar(msg);
 
     painel.classList.remove("aberto");
+    const carimbo = pronto.querySelector(".carimbo");
+    const naoVaiNinguem = temNomes && listaVao.length === 0;
+
     document.getElementById("okNome").textContent = nome;
-    document.getElementById("okTexto").textContent =
-      (quantos === 1 ? "Você está na lista" : "Vocês " + quantos + " estão na lista")
-      + "! Te esperamos dia 3 de setembro, às 19h, no Salão Pura Magia.";
+    if (naoVaiNinguem) {
+      carimbo.textContent = "Aviso enviado";
+      carimbo.style.color = "#8d3549";
+      carimbo.style.borderColor = "#8d3549";
+      document.getElementById("okTexto").textContent =
+        "Que pena! Avisamos que vocês não vão poder vir. Se mudar alguma coisa, é só voltar aqui.";
+    } else {
+      carimbo.textContent = "Presença confirmada";
+      carimbo.style.color = "";
+      carimbo.style.borderColor = "";
+      document.getElementById("okTexto").textContent =
+        (total === 1 ? "Você está na lista" : "Vocês " + total + " estão na lista")
+        + "! Te esperamos dia 3 de setembro, às 19h, no Salão Pura Magia.";
+    }
     pronto.classList.add("aberto");
     pronto.scrollIntoView({ behavior: "smooth", block: "center" });
-    festejar();
+    if (!naoVaiNinguem) festejar();
   });
 
   function entregar(msg) {
