@@ -1,2 +1,29 @@
+# Robôs de prévia de link (WhatsApp, Telegram, redes) podem ler o convite,
+# senão a imagem não aparece quando alguém compartilha.
+User-agent: facebookexternalhit
+Allow: /$
+Allow: /index.html
+Allow: /preview.jpg
+Disallow: /
+
+User-agent: WhatsApp
+Allow: /$
+Allow: /index.html
+Allow: /preview.jpg
+Disallow: /
+
+User-agent: Twitterbot
+Allow: /$
+Allow: /index.html
+Allow: /preview.jpg
+Disallow: /
+
+User-agent: TelegramBot
+Allow: /$
+Allow: /index.html
+Allow: /preview.jpg
+Disallow: /
+
+# Buscadores: nada.
 User-agent: *
 Disallow: /
