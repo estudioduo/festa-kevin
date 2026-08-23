@@ -1,0 +1,517 @@
+<title>Lista da Fazendinha</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grandstander:wght@700;800;900&family=Nunito:wght@400;600;700;800&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<style>
+:root{
+  --creme:#fdf3df; --papel:#fffaef; --papel-2:#f7ecd4;
+  --azul:#2a6db5; --azul-fundo:#17497f;
+  --verde:#4f9440; --verde-claro:#e2f0d6;
+  --ambar:#b07d17; --ambar-claro:#fbeecb;
+  --vermelho:#a9455c; --vermelho-claro:#fadfe5;
+  --cinza:#8a7a66; --cinza-claro:#eee6d8;
+  --tinta:#3b2a1b; --tinta-suave:#736049;
+  --linha:rgba(154,114,71,.26);
+  --sombra:0 6px 20px -12px rgba(59,42,27,.55);
+  --passo:clamp(14px,4vw,20px);
+}
+*{box-sizing:border-box}
+html{background:var(--creme)}
+body{
+  margin:0;background:var(--creme);color:var(--tinta);
+  font-family:"Nunito",ui-rounded,"Avenir Next",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+.tela{max-width:560px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) var(--passo) calc(40px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
+
+/* cabeçalho */
+.topo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.topo h1{
+  font-family:"Grandstander",cursive;font-weight:900;font-size:1.38rem;line-height:1.05;
+  margin:0;color:var(--azul-fundo);
+}
+.topo .quando{font-size:.82rem;color:var(--tinta-suave);margin:4px 0 0}
+.gravado{
+  flex:none;font-size:.64rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  padding:5px 9px;border-radius:99px;background:var(--cinza-claro);color:var(--cinza);
+  white-space:nowrap;
+}
+.gravado[data-e=salvando]{background:var(--ambar-claro);color:var(--ambar)}
+.gravado[data-e=salvo]{background:var(--verde-claro);color:var(--verde)}
+.gravado[data-e=aparelho]{background:var(--verde-claro);color:var(--verde)}
+.gravado[data-e=local]{background:var(--vermelho-claro);color:var(--vermelho)}
+
+/* placar */
+.placar{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.placar .cartao{
+  background:var(--papel);border-radius:16px;padding:13px 14px;
+  border:1.5px solid var(--linha);box-shadow:var(--sombra);
+  display:flex;flex-direction:column;gap:1px;
+  border-left-width:5px;
+}
+.cartao.vai{border-left-color:var(--verde)}
+.cartao.pessoas{border-left-color:var(--azul)}
+.cartao.aguardando{border-left-color:var(--ambar)}
+.cartao.nao{border-left-color:var(--vermelho)}
+.cartao b{
+  font-family:"Grandstander",cursive;font-weight:900;font-size:1.9rem;line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.cartao.vai b{color:var(--verde)} .cartao.pessoas b{color:var(--azul)}
+.cartao.aguardando b{color:var(--ambar)} .cartao.nao b{color:var(--vermelho)}
+.cartao span{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-suave)}
+
+/* barrinha */
+.barra{display:flex;height:11px;border-radius:99px;overflow:hidden;background:var(--cinza-claro);border:1.5px solid var(--linha)}
+.barra i{display:block;transition:width .35s ease}
+.barra .b-vai{background:var(--verde)} .barra .b-ag{background:#e5b955}
+.barra .b-nao{background:var(--vermelho)} .barra .b-sem{background:#c9bba6}
+
+/* ferramentas */
+.ferramentas{display:flex;flex-wrap:wrap;gap:8px}
+.btn{
+  flex:1 1 0;min-width:0;border:1.5px solid var(--linha);cursor:pointer;
+  background:var(--papel);color:var(--azul-fundo);font-family:inherit;font-weight:800;font-size:.88rem;
+  padding:11px 13px;border-radius:13px;box-shadow:var(--sombra);
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn:hover{background:#fff;border-color:var(--azul)}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+.busca{position:relative}
+.busca input{
+  width:100%;font-family:inherit;font-size:1rem;color:var(--tinta);
+  background:var(--papel);border:1.5px solid var(--linha);border-radius:13px;
+  padding:12px 13px 12px 38px;
+}
+.busca input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(42,109,181,.18)}
+.busca svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:var(--tinta-suave);stroke-width:2;stroke-linecap:round}
+
+/* lista */
+.lista{display:flex;flex-direction:column;gap:7px;list-style:none;margin:0;padding:0}
+.pessoa{
+  background:var(--papel);border:1.5px solid var(--linha);border-radius:14px;
+  box-shadow:var(--sombra);overflow:hidden;border-left-width:5px;
+}
+.pessoa[data-s=vai]{border-left-color:var(--verde)}
+.pessoa[data-s=aguardando]{border-left-color:#e5b955}
+.pessoa[data-s=nao]{border-left-color:var(--vermelho)}
+.pessoa[data-s=sem]{border-left-color:#c9bba6}
+.cabeca{
+  width:100%;border:0;background:none;cursor:pointer;font-family:inherit;color:inherit;
+  display:flex;align-items:center;gap:11px;padding:12px 13px;text-align:left;
+}
+.cabeca:hover{background:#fff}
+.cabeca .quem{flex:1;min-width:0}
+.cabeca .nm{display:block;font-weight:800;font-size:1rem;line-height:1.25;overflow-wrap:anywhere}
+.cabeca .ob{display:block;font-size:.8rem;line-height:1.3;color:var(--tinta-suave);overflow-wrap:anywhere}
+.chip{
+  flex:none;font-size:.7rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:5px 10px;border-radius:99px;white-space:nowrap;
+}
+.chip[data-s=vai]{background:var(--verde-claro);color:var(--verde)}
+.chip[data-s=aguardando]{background:var(--ambar-claro);color:var(--ambar)}
+.chip[data-s=nao]{background:var(--vermelho-claro);color:var(--vermelho)}
+.chip[data-s=sem]{background:var(--cinza-claro);color:var(--cinza)}
+.qtd-chip{
+  flex:none;font-family:"Grandstander",cursive;font-weight:900;font-size:.95rem;
+  color:var(--azul-fundo);background:#d9eaf8;border-radius:9px;padding:3px 9px;
+  font-variant-numeric:tabular-nums;
+}
+.seta{flex:none;width:15px;height:15px;fill:none;stroke:var(--tinta-suave);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.pessoa.aberta .seta{transform:rotate(180deg)}
+
+.detalhe{display:none;padding:2px 13px 14px;flex-direction:column;gap:12px;border-top:1.5px dashed var(--linha)}
+.pessoa.aberta .detalhe{display:flex}
+.rotulo{font-size:.68rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--tinta-suave);margin:8px 0 0}
+.status-botoes{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.status-botoes button{
+  border:2px solid var(--linha);background:#fff;cursor:pointer;font-family:inherit;
+  font-weight:800;font-size:.86rem;padding:10px 8px;border-radius:11px;color:var(--tinta-suave);
+}
+.status-botoes button[aria-pressed=true][data-s=vai]{background:var(--verde-claro);border-color:var(--verde);color:var(--verde)}
+.status-botoes button[aria-pressed=true][data-s=aguardando]{background:var(--ambar-claro);border-color:#d9a63c;color:var(--ambar)}
+.status-botoes button[aria-pressed=true][data-s=nao]{background:var(--vermelho-claro);border-color:var(--vermelho);color:var(--vermelho)}
+.status-botoes button[aria-pressed=true][data-s=sem]{background:var(--cinza-claro);border-color:var(--cinza);color:var(--cinza)}
+.contador{display:flex;align-items:center;gap:10px}
+.contador button{
+  width:42px;height:42px;flex:none;border-radius:12px;border:2px solid var(--linha);
+  background:#fff;font-size:1.35rem;line-height:1;color:var(--azul-fundo);cursor:pointer;font-weight:700;
+}
+.contador button:hover{background:var(--papel-2)}
+.contador output{
+  flex:1;text-align:center;font-family:"Grandstander",cursive;font-weight:900;font-size:1.3rem;
+  color:var(--azul-fundo);font-variant-numeric:tabular-nums;
+}
+.detalhe input[type=text]{
+  width:100%;font-family:inherit;font-size:.98rem;color:var(--tinta);
+  background:#fff;border:2px solid var(--linha);border-radius:11px;padding:10px 12px;
+}
+.detalhe input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(42,109,181,.18)}
+.apagar{align-self:flex-start;border:0;background:none;cursor:pointer;font-family:inherit;font-size:.83rem;color:var(--vermelho);text-decoration:underline;padding:2px}
+
+.vazio{text-align:center;color:var(--tinta-suave);font-size:.92rem;padding:22px 8px}
+
+/* adicionar */
+.somar{display:flex;gap:8px}
+.somar input{
+  flex:1;font-family:inherit;font-size:1rem;color:var(--tinta);
+  background:var(--papel);border:1.5px solid var(--linha);border-radius:13px;padding:12px 13px;
+}
+.somar input:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(79,148,64,.2)}
+.somar button{
+  flex:none;border:0;cursor:pointer;font-family:"Grandstander",cursive;font-weight:900;font-size:.95rem;
+  color:#fff;background:var(--verde);padding:0 18px;border-radius:13px;
+}
+
+.aviso{
+  background:var(--ambar-claro);border:1.5px solid #e0c37a;border-radius:13px;
+  padding:12px 14px;font-size:.86rem;color:#6d4f0f;
+}
+.aviso b{color:#4d3708}
+
+.recado{
+  position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,80px);
+  background:var(--azul-fundo);color:#fff;font-weight:700;font-size:.9rem;
+  padding:11px 18px;border-radius:99px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+  opacity:0;transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .28s;pointer-events:none;z-index:20;
+}
+.recado.mostra{transform:translate(-50%,0);opacity:1}
+
+:focus-visible{outline:3px solid var(--azul);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.001ms!important}}
+@media (min-width:520px){.placar{grid-template-columns:repeat(4,1fr)}}
+</style>
+
+<div class="tela">
+  <header class="topo">
+    <div>
+      <h1>Lista da Fazendinha</h1>
+      <p class="quando">Kevin Brian · 3 de setembro, 19h · <span id="faltam"></span></p>
+    </div>
+    <span class="gravado" id="gravado" data-e="pronto">—</span>
+  </header>
+
+  <section class="placar" aria-label="Resumo">
+    <div class="cartao vai"><b id="n-vai">0</b><span>grupos que vão</span></div>
+    <div class="cartao pessoas"><b id="n-pessoas">0</b><span>pessoas na festa</span></div>
+    <div class="cartao aguardando"><b id="n-ag">0</b><span>sem resposta</span></div>
+    <div class="cartao nao"><b id="n-nao">0</b><span>não vão</span></div>
+  </section>
+
+  <div class="barra" id="barra" aria-hidden="true">
+    <i class="b-vai"></i><i class="b-ag"></i><i class="b-nao"></i><i class="b-sem"></i>
+  </div>
+
+  <div class="ferramentas">
+    <button class="btn" id="copiarLink">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.5a4 4 0 0 0 5.7.4l3-3a4 4 0 0 0-5.7-5.7l-1.3 1.3"/><path d="M14 10.5a4 4 0 0 0-5.7-.4l-3 3a4 4 0 0 0 5.7 5.7l1.3-1.3"/></svg>
+      Link do convite
+    </button>
+    <button class="btn" id="copiarLista">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="3.5" width="12" height="15" rx="2.5"/><path d="M15.5 21.5h-11a2 2 0 0 1-2-2v-13"/></svg>
+      Copiar resumo
+    </button>
+  </div>
+
+  <div class="busca">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none"/><path d="m16 16 4.5 4.5"/></svg>
+    <input type="search" id="busca" placeholder="Procurar na lista" aria-label="Procurar na lista" autocomplete="off">
+  </div>
+
+  <ul class="lista" id="lista"></ul>
+  <p class="vazio" id="vazio" hidden>Ninguém com esse nome na lista.</p>
+
+  <form class="somar" id="somar">
+    <input type="text" id="novoNome" placeholder="Adicionar convidado" aria-label="Nome do novo convidado" autocomplete="off">
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <p class="aviso">
+    <b>Antes de mandar o link:</b> o convite não mostra a lista de nomes pra ninguém —
+    quem abre só vê o convite e um campo pra escrever o próprio nome. As confirmações
+    chegam pra você no WhatsApp e você marca aqui.
+  </p>
+</div>
+
+<div class="recado" id="recado" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const LINK_CONVITE = "https://estudioduo.github.io/festa-kevin/";
+  const CHAVE = "festa-kevin-lista";
+  const FESTA = new Date("2026-09-03T19:00:00-03:00");
+
+  const ROTULOS = { vai: "vai", aguardando: "sem resposta", nao: "não vai", sem: "sem convite" };
+  const AVISO_SEM_CONVITE = "Ainda não recebeu o convite";
+  const ORDEM = ["vai", "aguardando", "sem", "nao"];
+
+  const PADRAO = {
+    atualizado: "2026-08-23T00:00:00.000Z",
+    pessoas: [
+      { id: "p1",  nome: "Shirley e família",        s: "vai", q: 4, ob: "" },
+      { id: "p2",  nome: "Luana e Júlio",            s: "vai", q: 2, ob: "" },
+      { id: "p3",  nome: "Marcondes e Dona Isabel",  s: "vai", q: 2, ob: "" },
+      { id: "p4",  nome: "Mica e João",              s: "vai", q: 2, ob: "" },
+      { id: "p5",  nome: "Jones e Lenita",           s: "vai", q: 2, ob: "" },
+      { id: "p6",  nome: "Mateus e Letícia",         s: "vai", q: 2, ob: "" },
+      { id: "p7",  nome: "Davisson",                 s: "vai", q: 1, ob: "" },
+      { id: "p8",  nome: "Galeguinho e família",     s: "vai", q: 4, ob: "" },
+      { id: "p9",  nome: "Família Tenorio",          s: "vai", q: 4, ob: "" },
+      { id: "p10", nome: "Pedra e família",          s: "vai", q: 4, ob: "" },
+      { id: "p11", nome: "Xuxu e família",           s: "vai", q: 4, ob: "" },
+      { id: "p12", nome: "Josiane e família",        s: "vai", q: 4, ob: "" },
+      { id: "p13", nome: "Joelma",                   s: "vai", q: 1, ob: "" },
+      { id: "p14", nome: "Jéssica",                  s: "vai", q: 1, ob: "" },
+      { id: "p15", nome: "Monique e filho",          s: "vai", q: 2, ob: "" },
+      { id: "p16", nome: "Nike e namorado",          s: "vai", q: 2, ob: "" },
+      { id: "p17", nome: "Yago",                     s: "vai", q: 1, ob: "" },
+      { id: "p18", nome: "C. S. e marido",           s: "vai", q: 2, ob: "" },
+      { id: "p19", nome: "Alessandra e família",     s: "vai", q: 4, ob: "" },
+      { id: "p20", nome: "Saulo e família",          s: "vai", q: 4, ob: "" },
+      { id: "p21", nome: "Barto e família",          s: "vai", q: 4, ob: "" },
+      { id: "p22", nome: "Zezinho e Lívia",          s: "vai", q: 2, ob: "" },
+      { id: "p23", nome: "Davila e marido",          s: "nao", q: 2, ob: "" },
+      { id: "p24", nome: "Tia Maria",                s: "sem", q: 1, ob: "Ainda não recebeu o convite" },
+      { id: "p25", nome: "Mateus casado e família",  s: "sem", q: 4, ob: "Ainda não recebeu o convite" }
+    ]
+  };
+
+  let estado = null;
+  let aberta = null;
+  let filtro = "";
+
+  /* ---------- carregar ---------- */
+  function valido(x) {
+    return x && Array.isArray(x.pessoas) && x.pessoas.length > 0 && typeof x.atualizado === "string";
+  }
+  async function carregar() {
+    let nuvem = null, aparelho = null;
+    try {
+      const r = await fetch("dados.json", { cache: "no-store" });
+      if (r.ok) nuvem = await r.json();
+    } catch (e) { /* ainda não existe */ }
+    try { aparelho = JSON.parse(localStorage.getItem(CHAVE) || "null"); } catch (e) { /* ignora */ }
+
+    const opcoes = [nuvem, aparelho, PADRAO].filter(valido);
+    opcoes.sort((a, b) => (a.atualizado < b.atualizado ? 1 : -1));
+    estado = JSON.parse(JSON.stringify(opcoes[0]));
+  }
+
+  /* ---------- salvar ---------- */
+  let relogio = null;
+  function marcar(e, texto) {
+    const el = document.getElementById("gravado");
+    el.dataset.e = e; el.textContent = texto;
+  }
+  function salvar() {
+    estado.atualizado = new Date().toISOString();
+    try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch (e) { /* ignora */ }
+    marcar("salvando", "salvando…");
+    clearTimeout(relogio);
+    relogio = setTimeout(guardarNaNuvem, 1400);
+  }
+  async function guardarNaNuvem() {
+    const api = window.claude && claude.use ? await claude.use("artifact").catch(() => null) : null;
+    if (!api) { marcar("aparelho", "salvo neste celular"); return; }
+    try {
+      await api.publish({ "dados.json": JSON.stringify(estado) });
+      marcar("salvo", "salvo");
+    } catch (err) {
+      if (err && err.code === "conflict") { marcar("salvando", "recarregando…"); return; }
+      marcar("local", "só neste aparelho");
+    }
+  }
+
+  /* ---------- desenhar ---------- */
+  const lista = document.getElementById("lista");
+
+  function contas() {
+    const c = { vai: 0, aguardando: 0, nao: 0, sem: 0, pessoas: 0 };
+    for (const p of estado.pessoas) { c[p.s]++; if (p.s === "vai") c.pessoas += p.q; }
+    return c;
+  }
+
+  function desenharPlacar() {
+    const c = contas();
+    document.getElementById("n-vai").textContent = c.vai;
+    document.getElementById("n-pessoas").textContent = c.pessoas;
+    document.getElementById("n-ag").textContent = c.aguardando;
+    document.getElementById("n-nao").textContent = c.nao;
+    const total = estado.pessoas.length || 1;
+    const barra = document.getElementById("barra");
+    const larguras = [c.vai, c.aguardando, c.nao, c.sem];
+    barra.querySelectorAll("i").forEach((el, i) => { el.style.width = (larguras[i] / total * 100) + "%"; });
+  }
+
+  function desenharLista() {
+    const busca = filtro.trim().toLowerCase();
+    const visiveis = estado.pessoas
+      .filter(p => !busca || p.nome.toLowerCase().includes(busca))
+      .sort((a, b) => ORDEM.indexOf(a.s) - ORDEM.indexOf(b.s) || a.nome.localeCompare(b.nome, "pt"));
+
+    document.getElementById("vazio").hidden = visiveis.length > 0;
+    lista.replaceChildren(...visiveis.map(desenharPessoa));
+  }
+
+  function desenharPessoa(p) {
+    const li = document.createElement("li");
+    li.className = "pessoa" + (aberta === p.id ? " aberta" : "");
+    li.dataset.s = p.s;
+
+    const cabeca = document.createElement("button");
+    cabeca.type = "button";
+    cabeca.className = "cabeca";
+    cabeca.setAttribute("aria-expanded", aberta === p.id ? "true" : "false");
+    cabeca.innerHTML =
+      '<span class="quem"><span class="nm"></span><span class="ob"></span></span>' +
+      '<span class="qtd-chip"></span>' +
+      '<span class="chip"></span>' +
+      '<svg class="seta" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+    cabeca.querySelector(".nm").textContent = p.nome;
+    const ob = cabeca.querySelector(".ob");
+    if (p.ob) ob.textContent = p.ob; else ob.remove();
+    const qtd = cabeca.querySelector(".qtd-chip");
+    if (p.s === "vai") qtd.textContent = p.q; else qtd.remove();
+    const chip = cabeca.querySelector(".chip");
+    chip.dataset.s = p.s; chip.textContent = ROTULOS[p.s];
+    cabeca.addEventListener("click", () => { aberta = aberta === p.id ? null : p.id; desenharLista(); });
+    li.append(cabeca);
+
+    const det = document.createElement("div");
+    det.className = "detalhe";
+    det.innerHTML =
+      '<p class="rotulo">Situação</p><div class="status-botoes"></div>' +
+      '<p class="rotulo">Quantas pessoas</p>' +
+      '<div class="contador"><button type="button" class="menos" aria-label="Diminuir">−</button>' +
+      '<output class="saida"></output>' +
+      '<button type="button" class="mais" aria-label="Aumentar">+</button></div>' +
+      '<p class="rotulo">Nome</p><input type="text" class="ed-nome">' +
+      '<p class="rotulo">Observação</p><input type="text" class="ed-ob" placeholder="Ex.: chega mais tarde">' +
+      '<button type="button" class="apagar">Tirar da lista</button>';
+
+    const botoes = det.querySelector(".status-botoes");
+    for (const s of ORDEM) {
+      const b = document.createElement("button");
+      b.type = "button"; b.dataset.s = s; b.textContent = ROTULOS[s];
+      b.setAttribute("aria-pressed", p.s === s ? "true" : "false");
+      b.addEventListener("click", () => {
+        p.s = s;
+        if (s !== "sem" && p.ob === AVISO_SEM_CONVITE) p.ob = "";
+        salvar(); desenharPlacar(); desenharLista();
+      });
+      botoes.append(b);
+    }
+
+    const saida = det.querySelector(".saida");
+    saida.textContent = p.q;
+    det.querySelector(".menos").addEventListener("click", () => {
+      p.q = Math.max(1, p.q - 1); saida.textContent = p.q; salvar(); desenharPlacar();
+      const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
+    });
+    det.querySelector(".mais").addEventListener("click", () => {
+      p.q = Math.min(30, p.q + 1); saida.textContent = p.q; salvar(); desenharPlacar();
+      const c = li.querySelector(".qtd-chip"); if (c) c.textContent = p.q;
+    });
+
+    const edNome = det.querySelector(".ed-nome");
+    edNome.value = p.nome;
+    edNome.addEventListener("change", () => {
+      const v = edNome.value.trim();
+      if (v) { p.nome = v; salvar(); desenharLista(); } else { edNome.value = p.nome; }
+    });
+
+    const edOb = det.querySelector(".ed-ob");
+    edOb.value = p.ob || "";
+    edOb.addEventListener("change", () => { p.ob = edOb.value.trim(); salvar(); desenharLista(); });
+
+    det.querySelector(".apagar").addEventListener("click", () => {
+      estado.pessoas = estado.pessoas.filter(x => x.id !== p.id);
+      aberta = null; salvar(); desenharPlacar(); desenharLista();
+      avisar("Tirei " + p.nome + " da lista");
+    });
+
+    li.append(det);
+    return li;
+  }
+
+  /* ---------- ações ---------- */
+  function avisar(texto) {
+    const r = document.getElementById("recado");
+    r.textContent = texto; r.classList.add("mostra");
+    clearTimeout(avisar.t);
+    avisar.t = setTimeout(() => r.classList.remove("mostra"), 2600);
+  }
+
+  async function copiar(texto, ok) {
+    try { await navigator.clipboard.writeText(texto); avisar(ok); }
+    catch (e) { avisar("Não consegui copiar — copie da barra de endereço"); }
+  }
+
+  document.getElementById("copiarLink").addEventListener("click", () => {
+    copiar(LINK_CONVITE, "Link do convite copiado");
+  });
+
+  document.getElementById("copiarLista").addEventListener("click", () => {
+    const c = contas();
+    const por = s => estado.pessoas.filter(p => p.s === s)
+      .sort((a, b) => a.nome.localeCompare(b.nome, "pt"))
+      .map(p => "- " + p.nome + (s === "vai" ? " (" + p.q + ")" : "")).join("\n");
+    const linhas = [
+      "Festa do Kevin Brian - 3 de setembro, 19h, Salão Pura Magia",
+      "",
+      "VÃO (" + c.vai + " grupos, " + c.pessoas + " pessoas)",
+      por("vai"),
+      "",
+      "SEM RESPOSTA (" + c.aguardando + ")",
+      por("aguardando") || "-",
+      "",
+      "SEM CONVITE AINDA (" + c.sem + ")",
+      por("sem") || "-",
+      "",
+      "NÃO VÃO (" + c.nao + ")",
+      por("nao") || "-"
+    ];
+    copiar(linhas.join("\n"), "Resumo copiado");
+  });
+
+  document.getElementById("busca").addEventListener("input", (ev) => {
+    filtro = ev.target.value; desenharLista();
+  });
+
+  document.getElementById("somar").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const campo = document.getElementById("novoNome");
+    const nome = campo.value.trim();
+    if (!nome) return;
+    const id = "p" + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36);
+    estado.pessoas.push({ id, nome, s: "sem", q: 1, ob: "" });
+    campo.value = ""; aberta = id;
+    salvar(); desenharPlacar(); desenharLista();
+    avisar(nome + " entrou na lista");
+  });
+
+  /* ---------- contagem ---------- */
+  function faltam() {
+    const el = document.getElementById("faltam");
+    const dif = FESTA - new Date();
+    if (dif <= 0) { el.textContent = "é hoje!"; return; }
+    const d = Math.floor(dif / 86400000);
+    el.textContent = d === 0 ? "é hoje!" : d === 1 ? "falta 1 dia" : "faltam " + d + " dias";
+  }
+
+  /* ---------- começar ---------- */
+  (async () => {
+    await carregar();
+    faltam(); setInterval(faltam, 300000);
+    desenharPlacar();
+    desenharLista();
+    marcar("pronto", "tudo certo");
+  })();
+})();
+</script>
