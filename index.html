@@ -209,9 +209,12 @@ a.linha:hover,a.linha:focus-visible{background:#fff;border-color:var(--verde)}
 .busca-nome input:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(124,191,90,.3)}
 .achados{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:244px;overflow-y:auto}
 .achados button{
-  width:100%;text-align:left;font-family:inherit;font-size:1rem;font-weight:700;color:var(--tinta);
-  background:#fff;border:2px solid var(--linha);border-radius:12px;padding:13px 14px;cursor:pointer;
+  width:100%;text-align:left;font-family:inherit;color:var(--tinta);
+  background:#fff;border:2px solid var(--linha);border-radius:12px;padding:12px 14px;cursor:pointer;
+  display:flex;flex-direction:column;gap:3px;
 }
+.achados .g{font-size:1rem;font-weight:800;line-height:1.25}
+.achados .m{font-size:.83rem;font-weight:600;color:var(--tinta-suave);line-height:1.3}
 .achados button:hover,.achados button:focus-visible{border-color:var(--verde);background:#f2f9ec}
 .achados mark{background:#fbeaa0;color:inherit;border-radius:3px;padding:0 1px}
 .dica-busca{font-size:.85rem;color:var(--tinta-suave);margin:3px 0 0;line-height:1.4}
@@ -459,31 +462,31 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
   // Cada grupo pode vir com os nomes de quem foi convidado (m) ou, enquanto
   // esses nomes não chegam, só com o tamanho provável do grupo (q).
   const CONVIDADOS = [
-    { g: "Luana e Júlio",            m: ["Luana", "Júlio"] },
-    { g: "Marcondes e Dona Isabel",  m: ["Marcondes", "Dona Isabel"] },
-    { g: "Mica e João",              m: ["Mica", "João"] },
-    { g: "Jones e Lenita",           m: ["Jones", "Lenita"] },
-    { g: "Mateus e Letícia",         m: ["Mateus", "Letícia"] },
-    { g: "Zezinho e Lívia",          m: ["Zezinho", "Lívia"] },
-    { g: "Davisson",                 m: ["Davisson"] },
-    { g: "Joelma",                   m: ["Joelma"] },
-    { g: "Jéssica",                  m: ["Jéssica"] },
-    { g: "Yago",                     m: ["Yago"] },
-    { g: "Tia Maria",                m: ["Tia Maria"] },
-    { g: "Monique e filho",          q: 2 },
-    { g: "Nike e namorado",          q: 2 },
-    { g: "C. S. e marido",           q: 2 },
-    { g: "Davila e marido",          q: 2 },
-    { g: "Shirley e família",        q: 4 },
-    { g: "Galeguinho e família",     q: 4 },
-    { g: "Família Tenorio",          q: 4 },
-    { g: "Pedra e família",          q: 4 },
-    { g: "Xuxu e família",           q: 4 },
-    { g: "Josiane e família",        q: 4 },
-    { g: "Alessandra e família",     q: 4 },
-    { g: "Saulo e família",          q: 4 },
-    { g: "Barto e família",          q: 4 },
-    { g: "Mateus casado e família",  q: 4 }
+    { g: "Shirley",         m: ["Shirley", "Jeferson"] },
+    { g: "Xuxu",            m: ["Gilson (Xuxu)", "Cida", "Julia (Pinto)", "Luquinhas"] },
+    { g: "Jéssica",         m: ["Jéssica"] },
+    { g: "Joelma",          m: ["Joelma"] },
+    { g: "Monique",         m: ["Monique", "João"] },
+    { g: "Jucilaine",       m: ["Jucilaine", "Arthur"] },
+    { g: "Jaciara",         m: ["Jaciara", "Elion"] },
+    { g: "Família Neco",    m: ["Jeferson (avô)", "Cristiane (avó)", "Julia (Tita)", "Jeferson (tio)", "Maria (bisavó)"] },
+    { g: "Pedra",           m: ["Beronio", "Lane", "Ryan", "Nátaly"] },
+    { g: "Andrey",          m: ["Andrey", "Lívia"] },
+    { g: "Saullo",          m: ["Saullo", "Érica"] },
+    { g: "Galeguinho",      m: ["Altamir (Galeguinho)", "Mariane (Mari)"] },
+    { g: "Matheus Casado",  m: ["Matheus", "Carla"] },
+    { g: "Jean",            m: ["Jean", "Jansen", "Marilene", "Juliete", "Maria"] },
+    { g: "João BK",         m: ["João", "Micaela"] },
+    { g: "Yago",            m: ["Yago"] },
+    { g: "Nicole",          m: ["Nicole (Nikk)", "Thiago"] },
+    { g: "Jonatas",         m: ["Jonatas (Jhones)", "Lenita"] },
+    { g: "Marcondes",       m: ["Marcondes (Coninho)", "Isabel"] },
+    { g: "Davisson",        m: ["Davisson"] },
+    { g: "Luana",           m: ["Luana", "Júlio"] },
+    { g: "Bartô",           m: ["Bartolomeu (Bartô)", "Laila"] },
+    { g: "Jadson",          m: ["Jadsoncley (Jadson)", "Alessandra", "Clarissa", "Aninha"] },
+    { g: "Rafael Matheus",  m: ["Matheus", "Letícia"] },
+    { g: "130 (Bom Parto)", m: ["Cida (avó)", "Lapão (avô)", "Josiane (tia)", "Dido (tio)", "Luana (prima)", "Isaac (primo)"] }
   ].map(c => ({ ...c, nome: c.g, busca: sem_acento(c.g + " " + (c.m || []).join(" ")) }));
 
   function sem_acento(t) {
@@ -588,7 +591,19 @@ dialog#lupa img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 2
       li.setAttribute("role", "option");
       const b = document.createElement("button");
       b.type = "button";
-      b.append(realcar(c.nome, termo));
+      const tituloG = document.createElement("span");
+      tituloG.className = "g";
+      tituloG.append(realcar(c.nome, termo));
+      b.append(tituloG);
+      if (c.m) {
+        const quem = document.createElement("span");
+        quem.className = "m";
+        c.m.forEach((pessoa, i) => {
+          if (i) quem.append(", ");
+          quem.append(realcar(pessoa, termo));
+        });
+        b.append(quem);
+      }
       b.addEventListener("click", () => escolher(c));
       li.append(b);
       return li;
