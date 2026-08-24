@@ -13,7 +13,7 @@ GRUPOS = [
     ("p10", "Andrey",          "falou",      ["Andrey", "Lívia"]),
     ("p11", "Saullo",          "falou",      ["Saullo", "Érica"]),
     ("p12", "Galeguinho",      "falou",      ["Altamir (Galeguinho)", "Mariane (Mari)"]),
-    ("p13", "Matheus Casado",  "sem",        ["Matheus", "Carla"]),
+    ("p13", "Matheus Casado",  "aguardando", ["Matheus", "Carla"]),
     ("p14", "Jean",            "aguardando", ["Jean", "Jansen", "Marilene", "Juliete", "Maria"]),
     ("p15", "João BK",         "falou",      ["João", "Micaela"]),
     ("p16", "Yago",            "falou",      ["Yago"]),
