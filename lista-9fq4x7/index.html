@@ -57,22 +57,22 @@ body{
   border-left-width:5px;
 }
 .cartao.confirmou{border-left-color:var(--verde)}
-.cartao.falou{border-left-color:var(--azul)}
+.cartao.aguardando{border-left-color:var(--ambar)}
 .cartao.pessoas{border-left-color:var(--madeira)}
 .cartao.nao{border-left-color:var(--vermelho)}
 .cartao b{
   font-family:"Grandstander",cursive;font-weight:900;font-size:1.9rem;line-height:1;
   font-variant-numeric:tabular-nums;
 }
-.cartao.confirmou b{color:var(--verde)} .cartao.falou b{color:var(--azul)}
+.cartao.confirmou b{color:var(--verde)} .cartao.aguardando b{color:var(--ambar)}
 .cartao.pessoas b{color:var(--madeira)} .cartao.nao b{color:var(--vermelho)}
 .cartao span{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-suave)}
 
 /* barrinha */
 .barra{display:flex;height:11px;border-radius:99px;overflow:hidden;background:var(--cinza-claro);border:1.5px solid var(--linha)}
 .barra i{display:block;transition:width .35s ease}
-.barra .b-confirmou{background:var(--verde)} .barra .b-falou{background:var(--azul)}
-.barra .b-aguardando{background:#e5b955} .barra .b-sem{background:#c9bba6}
+.barra .b-confirmou{background:var(--verde)}
+.barra .b-aguardando{background:#e5b955}
 .barra .b-nao{background:var(--vermelho)}
 
 /* ferramentas */
@@ -102,9 +102,7 @@ body{
   box-shadow:var(--sombra);overflow:hidden;border-left-width:5px;
 }
 .pessoa[data-s=confirmou]{border-left-color:var(--verde)}
-.pessoa[data-s=falou]{border-left-color:var(--azul)}
 .pessoa[data-s=aguardando]{border-left-color:#e5b955}
-.pessoa[data-s=sem]{border-left-color:#c9bba6}
 .pessoa[data-s=nao]{border-left-color:var(--vermelho)}
 .cabeca{display:flex;align-items:stretch}
 .cabeca:hover{background:#fff}
@@ -127,10 +125,8 @@ body{
   padding:5px 10px;border-radius:99px;white-space:nowrap;
 }
 .chip[data-s=confirmou]{background:var(--verde-claro);color:var(--verde)}
-.chip[data-s=falou]{background:#d9eaf8;color:var(--azul-fundo)}
 .chip[data-s=aguardando]{background:var(--ambar-claro);color:var(--ambar)}
 .chip[data-s=nao]{background:var(--vermelho-claro);color:var(--vermelho)}
-.chip[data-s=sem]{background:var(--cinza-claro);color:var(--cinza)}
 .qtd-chip{
   flex:none;font-family:"Grandstander",cursive;font-weight:900;font-size:.95rem;
   color:var(--azul-fundo);background:#d9eaf8;border-radius:9px;padding:3px 9px;
@@ -148,11 +144,9 @@ body{
   font-weight:800;font-size:.86rem;padding:10px 8px;border-radius:11px;color:var(--tinta-suave);
 }
 .status-botoes button[aria-pressed=true][data-s=confirmou]{background:var(--verde-claro);border-color:var(--verde);color:var(--verde)}
-.status-botoes button[aria-pressed=true][data-s=falou]{background:#d9eaf8;border-color:var(--azul);color:var(--azul-fundo)}
 .status-botoes button:last-child{grid-column:1/-1}
 .status-botoes button[aria-pressed=true][data-s=aguardando]{background:var(--ambar-claro);border-color:#d9a63c;color:var(--ambar)}
 .status-botoes button[aria-pressed=true][data-s=nao]{background:var(--vermelho-claro);border-color:var(--vermelho);color:var(--vermelho)}
-.status-botoes button[aria-pressed=true][data-s=sem]{background:var(--cinza-claro);border-color:var(--cinza);color:var(--cinza)}
 .contador{display:flex;align-items:center;gap:10px}
 .contador button{
   width:42px;height:42px;flex:none;border-radius:12px;border:2px solid var(--linha);
@@ -229,14 +223,14 @@ body{
   </header>
 
   <section class="placar" aria-label="Resumo">
-    <div class="cartao confirmou"><b id="n-confirmou">0</b><span>confirmaram</span></div>
-    <div class="cartao falou"><b id="n-falou">0</b><span>falta confirmar</span></div>
+    <div class="cartao confirmou"><b id="n-confirmou">0</b><span>confirmados</span></div>
+    <div class="cartao aguardando"><b id="n-aguardando">0</b><span>falta confirmar</span></div>
     <div class="cartao pessoas"><b id="n-pessoas">0</b><span>pessoas na festa</span></div>
     <div class="cartao nao"><b id="n-nao">0</b><span>não vão</span></div>
   </section>
 
   <div class="barra" id="barra" aria-hidden="true">
-    <i class="b-confirmou"></i><i class="b-falou"></i><i class="b-aguardando"></i><i class="b-sem"></i><i class="b-nao"></i>
+    <i class="b-confirmou"></i><i class="b-aguardando"></i><i class="b-nao"></i>
   </div>
 
   <div class="ferramentas">
@@ -264,9 +258,9 @@ body{
   </form>
 
   <p class="aviso">
-    <b>Falou que vai</b> é quem já avisou no zap, mas ainda não mandou pelo link.
-    <b>Confirmou</b> é quem abriu o convite e confirmou de verdade — a mensagem
-    chega no WhatsApp e aí é só tocar no ✓ verde da linha.
+    Quando a confirmação chegar no WhatsApp, ache a pessoa aqui e toque no
+    <b>✓ verde</b> da linha. Abrindo a linha dá pra desmarcar quem do grupo não vai,
+    e o total de pessoas se ajusta sozinho.
   </p>
 </div>
 
@@ -281,51 +275,42 @@ body{
   const FESTA = new Date("2026-09-03T19:00:00-03:00");
 
   const ROTULOS = {
-    confirmou: "confirmou",
-    falou: "falou",
+    confirmou: "confirmado",
     aguardando: "sem resposta",
-    sem: "sem convite",
     nao: "não vai"
   };
-  const ROTULOS_BOTAO = {
-    confirmou: "confirmou",
-    falou: "falou que vai",
-    aguardando: "sem resposta",
-    sem: "sem convite",
-    nao: "não vai"
-  };
-  const CONTAM = ["confirmou", "falou"];
-  const AVISO_SEM_CONVITE = "Ainda não recebeu o convite";
-  const ORDEM = ["falou", "aguardando", "sem", "confirmou", "nao"];
+  const ROTULOS_BOTAO = ROTULOS;
+  const CONTAM = ["confirmou"];
+  const ORDEM = ["aguardando", "confirmou", "nao"];
 
   const PADRAO = {
-    atualizado: "2026-08-23T22:00:00.000Z",
+    atualizado: "2026-08-24T02:00:00.000Z",
     pessoas: [
-    { id: "p1",   nome: "Shirley",         s: "falou",       q: 2, ob: "", m: ["Shirley", "Jeferson"], fora: [] },
-    { id: "p2",   nome: "Xuxu",            s: "falou",       q: 4, ob: "", m: ["Gilson (Xuxu)", "Cida", "Julia (Pinto)", "Luquinhas"], fora: [] },
-    { id: "p3",   nome: "Jéssica",         s: "falou",       q: 1, ob: "", m: ["Jéssica"], fora: [] },
-    { id: "p4",   nome: "Joelma",          s: "falou",       q: 1, ob: "", m: ["Joelma"], fora: [] },
-    { id: "p5",   nome: "Monique",         s: "falou",       q: 2, ob: "", m: ["Monique", "João"], fora: [] },
+    { id: "p1",   nome: "Shirley",         s: "confirmou",   q: 2, ob: "", m: ["Shirley", "Jeferson"], fora: [] },
+    { id: "p2",   nome: "Xuxu",            s: "confirmou",   q: 4, ob: "", m: ["Gilson (Xuxu)", "Cida", "Julia (Pinto)", "Luquinhas"], fora: [] },
+    { id: "p3",   nome: "Jéssica",         s: "confirmou",   q: 1, ob: "", m: ["Jéssica"], fora: [] },
+    { id: "p4",   nome: "Joelma",          s: "confirmou",   q: 1, ob: "", m: ["Joelma"], fora: [] },
+    { id: "p5",   nome: "Monique",         s: "confirmou",   q: 2, ob: "", m: ["Monique", "João"], fora: [] },
     { id: "p6",   nome: "Jucilaine",       s: "aguardando",  q: 2, ob: "", m: ["Jucilaine", "Arthur"], fora: [] },
     { id: "p7",   nome: "Jaciara",         s: "aguardando",  q: 2, ob: "", m: ["Jaciara", "Elion"], fora: [] },
     { id: "p8",   nome: "Família Neco",    s: "aguardando",  q: 5, ob: "", m: ["Jeferson (avô)", "Cristiane (avó)", "Julia (Tita)", "Jeferson (tio)", "Maria (bisavó)"], fora: [] },
-    { id: "p9",   nome: "Pedra",           s: "falou",       q: 4, ob: "", m: ["Beronio", "Lane", "Ryan", "Nátaly"], fora: [] },
-    { id: "p10",  nome: "Andrey",          s: "falou",       q: 2, ob: "", m: ["Andrey", "Lívia"], fora: [] },
-    { id: "p11",  nome: "Saullo",          s: "falou",       q: 2, ob: "", m: ["Saullo", "Érica"], fora: [] },
-    { id: "p12",  nome: "Galeguinho",      s: "falou",       q: 2, ob: "", m: ["Altamir (Galeguinho)", "Mariane (Mari)"], fora: [] },
+    { id: "p9",   nome: "Pedra",           s: "confirmou",   q: 4, ob: "", m: ["Beronio", "Lane", "Ryan", "Nátaly"], fora: [] },
+    { id: "p10",  nome: "Andrey",          s: "confirmou",   q: 2, ob: "", m: ["Andrey", "Lívia"], fora: [] },
+    { id: "p11",  nome: "Saullo",          s: "confirmou",   q: 2, ob: "", m: ["Saullo", "Érica"], fora: [] },
+    { id: "p12",  nome: "Galeguinho",      s: "confirmou",   q: 2, ob: "", m: ["Altamir (Galeguinho)", "Mariane (Mari)"], fora: [] },
     { id: "p13",  nome: "Matheus Casado",  s: "aguardando",  q: 2, ob: "", m: ["Matheus", "Carla"], fora: [] },
     { id: "p14",  nome: "Jean",            s: "aguardando",  q: 5, ob: "", m: ["Jean", "Jansen", "Marilene", "Juliete", "Maria"], fora: [] },
-    { id: "p15",  nome: "João BK",         s: "falou",       q: 2, ob: "", m: ["João", "Micaela"], fora: [] },
-    { id: "p16",  nome: "Yago",            s: "falou",       q: 1, ob: "", m: ["Yago"], fora: [] },
-    { id: "p17",  nome: "Nicole",          s: "falou",       q: 2, ob: "", m: ["Nicole (Nikk)", "Thiago"], fora: [] },
-    { id: "p18",  nome: "Jonatas",         s: "falou",       q: 2, ob: "", m: ["Jonatas (Jhones)", "Lenita"], fora: [] },
-    { id: "p19",  nome: "Marcondes",       s: "falou",       q: 2, ob: "", m: ["Marcondes (Coninho)", "Isabel"], fora: [] },
-    { id: "p20",  nome: "Davisson",        s: "falou",       q: 1, ob: "", m: ["Davisson"], fora: [] },
-    { id: "p21",  nome: "Luana",           s: "falou",       q: 2, ob: "", m: ["Luana", "Júlio"], fora: [] },
-    { id: "p22",  nome: "Bartô",           s: "falou",       q: 2, ob: "", m: ["Bartolomeu (Bartô)", "Laila"], fora: [] },
-    { id: "p23",  nome: "Jadson",          s: "falou",       q: 4, ob: "", m: ["Jadsoncley (Jadson)", "Alessandra", "Clarissa", "Aninha"], fora: [] },
-    { id: "p24",  nome: "Rafael Matheus",  s: "falou",       q: 2, ob: "", m: ["Matheus", "Letícia"], fora: [] },
-    { id: "p25",  nome: "130 (Bom Parto)", s: "falou",       q: 6, ob: "", m: ["Cida (avó)", "Lapão (avô)", "Josiane (tia)", "Dido (tio)", "Luana (prima)", "Isaac (primo)"], fora: [] }
+    { id: "p15",  nome: "João BK",         s: "confirmou",   q: 2, ob: "", m: ["João", "Micaela"], fora: [] },
+    { id: "p16",  nome: "Yago",            s: "confirmou",   q: 1, ob: "", m: ["Yago"], fora: [] },
+    { id: "p17",  nome: "Nicole",          s: "confirmou",   q: 2, ob: "", m: ["Nicole (Nikk)", "Thiago"], fora: [] },
+    { id: "p18",  nome: "Jonatas",         s: "confirmou",   q: 2, ob: "", m: ["Jonatas (Jhones)", "Lenita"], fora: [] },
+    { id: "p19",  nome: "Marcondes",       s: "confirmou",   q: 2, ob: "", m: ["Marcondes (Coninho)", "Isabel"], fora: [] },
+    { id: "p20",  nome: "Davisson",        s: "confirmou",   q: 1, ob: "", m: ["Davisson"], fora: [] },
+    { id: "p21",  nome: "Luana",           s: "confirmou",   q: 2, ob: "", m: ["Luana", "Júlio"], fora: [] },
+    { id: "p22",  nome: "Bartô",           s: "confirmou",   q: 2, ob: "", m: ["Bartolomeu (Bartô)", "Laila"], fora: [] },
+    { id: "p23",  nome: "Jadson",          s: "confirmou",   q: 4, ob: "", m: ["Jadsoncley (Jadson)", "Alessandra", "Clarissa", "Aninha"], fora: [] },
+    { id: "p24",  nome: "Rafael Matheus",  s: "confirmou",   q: 2, ob: "", m: ["Matheus", "Letícia"], fora: [] },
+    { id: "p25",  nome: "130 (Bom Parto)", s: "confirmou",   q: 6, ob: "", m: ["Cida (avó)", "Lapão (avô)", "Josiane (tia)", "Dido (tio)", "Luana (prima)", "Isaac (primo)"], fora: [] }
     ]
   };
 
@@ -337,10 +322,14 @@ body{
   function valido(x) {
     return x && Array.isArray(x.pessoas) && x.pessoas.length > 0 && typeof x.atualizado === "string";
   }
-  // Listas salvas antes da separação usavam um "vai" só, que na prática
-  // era "falou que vai" — ninguém tinha confirmado pelo link ainda.
+  // Versões antigas tinham "vai", e depois "falou" separado de "confirmou".
+  // Agora existe um estado positivo só. "sem convite" virou "sem resposta".
   function migrar(x) {
-    for (const p of x.pessoas) if (p.s === "vai") p.s = "falou";
+    for (const p of x.pessoas) {
+      if (p.s === "vai" || p.s === "falou") p.s = "confirmou";
+      else if (p.s === "sem") p.s = "aguardando";
+      if (!ROTULOS[p.s]) p.s = "aguardando";
+    }
     return x;
   }
   async function carregar() {
@@ -385,7 +374,7 @@ body{
   const lista = document.getElementById("lista");
 
   function contas() {
-    const c = { confirmou: 0, falou: 0, aguardando: 0, sem: 0, nao: 0, pessoas: 0 };
+    const c = { confirmou: 0, aguardando: 0, nao: 0, pessoas: 0 };
     for (const p of estado.pessoas) {
       c[p.s]++;
       if (CONTAM.includes(p.s)) c.pessoas += p.q;
@@ -396,12 +385,12 @@ body{
   function desenharPlacar() {
     const c = contas();
     document.getElementById("n-confirmou").textContent = c.confirmou;
-    document.getElementById("n-falou").textContent = c.falou + c.aguardando + c.sem;
+    document.getElementById("n-aguardando").textContent = c.aguardando;
     document.getElementById("n-pessoas").textContent = c.pessoas;
     document.getElementById("n-nao").textContent = c.nao;
     const total = estado.pessoas.length || 1;
     const barra = document.getElementById("barra");
-    const larguras = [c.confirmou, c.falou, c.aguardando, c.sem, c.nao];
+    const larguras = [c.confirmou, c.aguardando, c.nao];
     barra.querySelectorAll("i").forEach((el, i) => { el.style.width = (larguras[i] / total * 100) + "%"; });
   }
 
@@ -461,7 +450,6 @@ body{
       tick.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 5 5 9-11"/></svg>';
       tick.addEventListener("click", () => {
         p.s = "confirmou";
-        if (p.ob === AVISO_SEM_CONVITE) p.ob = "";
         salvar(); desenharPlacar(); desenharLista();
         avisar(p.nome + " confirmou");
       });
@@ -491,7 +479,6 @@ body{
       b.setAttribute("aria-pressed", p.s === s ? "true" : "false");
       b.addEventListener("click", () => {
         p.s = s;
-        if (s !== "sem" && p.ob === AVISO_SEM_CONVITE) p.ob = "";
         salvar(); desenharPlacar(); desenharLista();
       });
       botoes.append(b);
@@ -591,17 +578,11 @@ body{
       "Festa do Kevin Brian - 3 de setembro, 19h, Salão Pura Magia",
       "Total esperado: " + c.pessoas + " pessoas",
       "",
-      "CONFIRMARAM PELO LINK (" + c.confirmou + ")",
+      "CONFIRMADOS (" + c.confirmou + " grupos)",
       por("confirmou") || "-",
-      "",
-      "FALARAM QUE VÃO, FALTA CONFIRMAR (" + c.falou + ")",
-      por("falou") || "-",
       "",
       "SEM RESPOSTA (" + c.aguardando + ")",
       por("aguardando") || "-",
-      "",
-      "SEM CONVITE AINDA (" + c.sem + ")",
-      por("sem") || "-",
       "",
       "NÃO VÃO (" + c.nao + ")",
       por("nao") || "-"
